@@ -18,9 +18,15 @@ impl Tile {
 
 type Map = Vec<Vec<Tile>>;
 
+pub enum PlayerState {
+    MovingCursor,
+    UnitSelected,
+}
+
 pub struct GameState {
     pub actors: Vec<Actor>,
     pub map: Map,
+    pub player_state: PlayerState,
 }
 
 pub fn initial_game_state(screen_height: i32, screen_width: i32) -> GameState {
@@ -33,6 +39,7 @@ pub fn initial_game_state(screen_height: i32, screen_width: i32) -> GameState {
             Actor { x: 0, y: 1 },
         ],
         map,
+        player_state: PlayerState::MovingCursor,
     }
 }
 
