@@ -41,10 +41,14 @@ fn select_tile(game_state: &mut GameState) {
     let cursor_x = game_state.cursor.x;
     let cursor_y = game_state.cursor.y;
 
-    if let Some(actor) = game_state.actors
+    let actor = game_state.actors
         .iter_mut()
-        .find(|actor| actor.x == cursor_x && actor.y == cursor_y) {
+        .find(|actor| actor.x == cursor_x && actor.y == cursor_y);
+
+    if let Some(actor) = actor {
         actor.selected = true;
+        game_state.current_menu = Some(actor.selected_menu.clone());
+        game_state.current_menu_option = Some(0);
     } else {
         let tile = &mut game_state.map[game_state.cursor.x as usize][game_state.cursor.y as usize];
         tile.selected = true;
@@ -56,6 +60,9 @@ fn select_tile(game_state: &mut GameState) {
 fn handle_unit_selected(input_state: Key, game_state: &mut GameState) {
     match input_state {
         Key { code: KeyCode::Escape, .. } => deselect_tile(game_state),
+        Key { code: KeyCode::Up, .. } => menu_option_up(game_state),
+        Key { code: KeyCode::Down, .. } => menu_option_down(game_state),
+        Key { code: KeyCode::Enter, .. } => menu_option_select(game_state),
         _ => {}
     }
 }
@@ -64,14 +71,50 @@ fn deselect_tile(game_state: &mut GameState) {
     let cursor_x = game_state.cursor.x;
     let cursor_y = game_state.cursor.y;
 
-    if let Some(actor) = game_state.actors
+    let actor = game_state.actors
         .iter_mut()
-        .find(|actor| actor.x == cursor_x && actor.y == cursor_y) {
+        .find(|actor| actor.x == cursor_x && actor.y == cursor_y);
+
+    if let Some(actor) = actor {
         actor.selected = false;
+        game_state.current_menu = None;
+        game_state.current_menu_option = None;
     } else {
         let tile = &mut game_state.map[game_state.cursor.x as usize][game_state.cursor.y as usize];
         tile.selected = false;
     }
 
     game_state.player_state = PlayerState::MovingCursor;
+}
+
+fn menu_option_up(game_state: &mut GameState) {
+    let current_menu_option = game_state.current_menu_option.take();
+    match current_menu_option {
+        Some(menu_option) => {
+            if menu_option > 0 {
+                game_state.current_menu_option = Some(menu_option - 1);
+            } else {
+                game_state.current_menu_option = Some(menu_option);
+            }
+        }
+        None => {}
+    }
+}
+
+fn menu_option_down(game_state: &mut GameState) {
+    let current_menu_option = game_state.current_menu_option.take();
+    match current_menu_option {
+        Some(menu_option) => {
+            if menu_option < game_state.current_menu.as_ref().unwrap().len() - 1 {
+                game_state.current_menu_option = Some(menu_option + 1);
+            } else {
+                game_state.current_menu_option = Some(menu_option);
+            }
+        }
+        None => {}
+    }
+}
+
+fn menu_option_select(game_state: &mut GameState) {
+
 }

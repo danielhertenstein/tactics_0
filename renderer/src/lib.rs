@@ -1,5 +1,6 @@
 extern crate tcod;
 
+use tcod::chars;
 use tcod::colors;
 use tcod::console::*;
 
@@ -76,9 +77,13 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
     renderer.panel.set_default_background(colors::BLACK);
     renderer.panel.clear();
 
+    let panel_width = renderer.panel.width();
+    let panel_height = renderer.panel.height();
+
     if let Some(actor) = game_state.actors
         .iter()
         .find(|actor| actor.selected) {
+
         renderer.panel.print_ex(
             1,
             1,
@@ -86,10 +91,42 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
             TextAlignment::Left,
             format!("{}", actor.name)
         );
+        if let Some(menu) = &game_state.current_menu {
+            for (i, option) in menu.iter().enumerate() {
+                // TODO: This unwrap feels bad. I know there should be a current menu option if the
+                // current menu is not None, but I may mess up.
+                if game_state.current_menu_option.unwrap() == i {
+                    renderer.panel.set_char(
+                        panel_width / 2,
+                        i as i32 + 1,
+                        chars::ARROW_E,
+                    );
+                    renderer.panel.print_ex(
+                        panel_width / 2 + 1,
+                        i as i32 + 1,
+                        BackgroundFlag::None,
+                        TextAlignment::Left,
+                        format!(" {}", option),
+                    );
+
+                } else {
+                    renderer.panel.print_ex(
+                        panel_width / 2,
+                        i as i32 + 1,
+                        BackgroundFlag::None,
+                        TextAlignment::Left,
+                        format!("  {}", option),
+                    );
+                }
+            }
+
+        }
+
     } else if let Some(tile) = game_state.map
         .iter()
         .flatten()
         .find(|tile| tile.selected) {
+
         renderer.panel.print_ex(
             1,
             1,
@@ -97,10 +134,9 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
             TextAlignment::Left,
             format!("{}", tile.terrain)
         );
+
     }
 
-    let panel_width = renderer.panel.width();
-    let panel_height = renderer.panel.height();
     blit(
         &renderer.panel,
         (0, 0),
