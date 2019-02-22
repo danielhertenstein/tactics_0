@@ -1,18 +1,26 @@
 extern crate tcod;
 
+use tcod::colors;
 use tcod::console::*;
 
-const SCREEN_WIDTH: i32 = 80;
-const SCREEN_HEIGHT: i32 = 80;
+const SCREEN_WIDTH: i32 = 20;
+const SCREEN_HEIGHT: i32 = 20;
+
+const LIMIT_FPS: i32 = 20;
 
 struct Actor {
     x: i32,
     y: i32,
 }
 
+#[derive(Clone)]
+struct Tile;
+
+type Map = Vec<Vec<Tile>>;
+
 struct GameState {
     actors: Vec<Actor>,
-
+    map: Map,
 }
 
 struct Renderer {
@@ -24,7 +32,7 @@ fn main() {
     let mut game_state = initial_game_state();
 
     loop {
-        render_system(&renderer, &game_state);
+        render_system(&mut renderer, &game_state);
     }
 }
 
@@ -46,10 +54,40 @@ fn initial_game_state() -> GameState {
         actors: vec![
             Actor { x: 0, y: 0 },
             Actor { x: 0, y: 1 },
-        ]
+        ],
+        map: vec![vec![Tile{}; SCREEN_HEIGHT as usize]; SCREEN_WIDTH as usize],
     }
 }
 
-fn render_system(renderer: &Renderer, game_state: &GameState) {
+fn render_system(renderer: &mut Renderer, game_state: &GameState) {
+    for y in 0..SCREEN_HEIGHT {
+        for x in 0..SCREEN_WIDTH {
+            renderer.root.set_char_background(
+                x,
+                y,
+                colors::GREEN,
+                BackgroundFlag::Set
+            );
+        }
+    }
 
+    for actor in &game_state.actors {
+        renderer.root.set_default_foreground(colors::BLUE);
+        renderer.root.put_char(
+            actor.x,
+            actor.y,
+            'A',
+            BackgroundFlag::None
+        );
+    }
+
+    renderer.root.flush();
+
+    for actor in &game_state.actors {
+        renderer.root.put_char(
+            actor.x,
+            actor.y,
+            ' ',
+            BackgroundFlag::None);
+    }
 }
