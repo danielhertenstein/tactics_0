@@ -1,14 +1,23 @@
 pub struct Actor {
     pub x: i32,
     pub y: i32,
+    pub name: String,
+    pub selected: bool,
+
 }
 
 #[derive(Clone)]
-pub struct Tile;
+pub struct Tile {
+    pub terrain: String,
+    pub selected: bool,
+}
 
 impl Tile {
     pub fn new() -> Tile {
-        Tile {}
+        Tile {
+            terrain: String::from("Grass"),
+            selected: false,
+        }
     }
 }
 
@@ -34,8 +43,8 @@ pub struct GameState {
 pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
     GameState {
         actors: vec![
-            Actor { x: 0, y: 0 },
-            Actor { x: 0, y: 1 },
+            Actor { x: 0, y: 0, name: String::from("Percy"), selected: false },
+            Actor { x: 0, y: 1, name: String::from("Bad Guy"), selected: false },
         ],
         map: vec![vec![Tile::new(); map_height as usize]; map_width as usize],
         player_state: PlayerState::MovingCursor,

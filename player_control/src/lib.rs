@@ -2,7 +2,7 @@ extern crate tcod;
 
 use tcod::input::{Key, KeyCode};
 
-use game_state::{Actor, GameState, PlayerState, Tile};
+use game_state::{GameState, PlayerState};
 
 pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
     match &game_state.player_state {
@@ -38,21 +38,15 @@ fn move_cursor(dx: i32, dy: i32, game_state: &mut GameState) {
 }
 
 fn select_tile(game_state: &mut GameState) {
+    let cursor_x = game_state.cursor.x;
+    let cursor_y = game_state.cursor.y;
+
     if let Some(actor) = game_state.actors
-        .iter()
-        .find(|actor| actor.x == game_state.cursor.x && actor.y == game_state.cursor.y) {
-        show_actor_menu(actor);
+        .iter_mut()
+        .find(|actor| actor.x == cursor_x && actor.y == cursor_y) {
+        actor.selected = true;
     } else {
-        let tile = &game_state.map[game_state.cursor.x as usize][game_state.cursor.y as usize];
-        show_tile_menu(tile);
+        let tile = &mut game_state.map[game_state.cursor.x as usize][game_state.cursor.y as usize];
+        tile.selected = true;
     }
-
-}
-
-fn show_actor_menu(actor: &Actor) {
-    println!("Selected an Actor!")
-}
-
-fn show_tile_menu(tile: &Tile) {
-    println!("Selected a Tile!")
 }

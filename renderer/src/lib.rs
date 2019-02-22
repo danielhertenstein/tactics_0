@@ -76,6 +76,29 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
     renderer.panel.set_default_background(colors::BLACK);
     renderer.panel.clear();
 
+    if let Some(actor) = game_state.actors
+        .iter()
+        .find(|actor| actor.selected) {
+        renderer.panel.print_ex(
+            1,
+            1,
+            BackgroundFlag::None,
+            TextAlignment::Left,
+            format!("{}", actor.name)
+        );
+    } else if let Some(tile) = game_state.map
+        .iter()
+        .flatten()
+        .find(|tile| tile.selected) {
+        renderer.panel.print_ex(
+            1,
+            1,
+            BackgroundFlag::None,
+            TextAlignment::Left,
+            format!("{}", tile.terrain)
+        );
+    }
+
     let panel_width = renderer.panel.width();
     let panel_height = renderer.panel.height();
     blit(

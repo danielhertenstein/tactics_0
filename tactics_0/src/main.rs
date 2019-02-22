@@ -4,7 +4,7 @@ use player_control::*;
 use renderer::*;
 
 const SCREEN_WIDTH: i32 = 30;
-const SCREEN_HEIGHT: i32 = 30;
+const SCREEN_HEIGHT: i32 = 25;
 
 const MAP_WIDTH: i32 = SCREEN_WIDTH;
 const MAP_HEIGHT: i32 = 20;
