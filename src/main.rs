@@ -16,6 +16,12 @@ struct Actor {
 #[derive(Clone)]
 struct Tile;
 
+impl Tile {
+    pub fn new() -> Tile {
+        Tile {}
+    }
+}
+
 type Map = Vec<Vec<Tile>>;
 
 struct GameState {
@@ -41,7 +47,7 @@ fn initialize_rendering_engine() -> Renderer {
         .font("arial10x10.png", FontLayout::Tcod)
         .font_type(FontType::Greyscale)
         .size(SCREEN_WIDTH, SCREEN_HEIGHT)
-        .title("Rust/libtcod tutorial")
+        .title("Tactics-0")
         .init();
     tcod::system::set_fps(LIMIT_FPS);
     Renderer {
@@ -55,7 +61,7 @@ fn initial_game_state() -> GameState {
             Actor { x: 0, y: 0 },
             Actor { x: 0, y: 1 },
         ],
-        map: vec![vec![Tile{}; SCREEN_HEIGHT as usize]; SCREEN_WIDTH as usize],
+        map: vec![vec![Tile::new(); SCREEN_HEIGHT as usize]; SCREEN_WIDTH as usize],
     }
 }
 
