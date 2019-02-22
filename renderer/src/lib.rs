@@ -34,6 +34,15 @@ pub fn initialize_rendering_engine(screen_height: i32, screen_width: i32, map_he
 }
 
 pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
+    render_map(renderer, game_state);
+    render_panel(renderer, game_state);
+
+    renderer.root.flush();
+
+    clear_actors(renderer, game_state);
+}
+
+fn render_map(renderer: &mut Renderer, game_state: &GameState) {
     let map_width = renderer.map.width();
     let map_height = renderer.map.height();
     for y in 0..map_height {
@@ -103,7 +112,9 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
         1.0,
         1.0,
     );
+}
 
+fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
     renderer.panel.set_default_background(colors::BLACK);
     renderer.panel.clear();
 
@@ -167,6 +178,7 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
 
     }
 
+    let map_height = renderer.map.height();
     blit(
         &renderer.panel,
         (0, 0),
@@ -176,9 +188,9 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
         1.0,
         1.0,
     );
+}
 
-    renderer.root.flush();
-
+fn clear_actors(renderer: &mut Renderer, game_state: &GameState) {
     for actor in &game_state.actors {
         renderer.map.put_char(
             actor.x,
