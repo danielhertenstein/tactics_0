@@ -31,14 +31,13 @@ pub struct GameState {
     pub cursor: Cursor,
 }
 
-pub fn initial_game_state(screen_height: i32, screen_width: i32) -> GameState {
-
+pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
     GameState {
         actors: vec![
             Actor { x: 0, y: 0 },
             Actor { x: 0, y: 1 },
         ],
-        map: vec![vec![Tile::new(); screen_height as usize]; screen_width as usize],
+        map: vec![vec![Tile::new(); map_height as usize]; map_width as usize],
         player_state: PlayerState::MovingCursor,
         cursor: Cursor { x: 0, y: 0 }
     }

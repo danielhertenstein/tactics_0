@@ -9,10 +9,14 @@ const LIMIT_FPS: i32 = 60;
 
 pub struct Renderer {
     root: Root,
+    map: Offscreen,
+    panel: Offscreen,
 }
 
 
-pub fn initialize_rendering_engine(screen_height: i32, screen_width: i32) -> Renderer {
+pub fn initialize_rendering_engine(screen_height: i32, screen_width: i32, map_height: i32,
+                                   map_width: i32, panel_height: i32,
+                                   panel_width: i32) -> Renderer {
     let root = Root::initializer()
         .font("arial10x10.png", FontLayout::Tcod)
         .font_type(FontType::Greyscale)
@@ -20,17 +24,20 @@ pub fn initialize_rendering_engine(screen_height: i32, screen_width: i32) -> Ren
         .title("Tactics-0")
         .init();
     tcod::system::set_fps(LIMIT_FPS);
+
     Renderer {
         root,
+        map: Offscreen::new(map_width, map_height),
+        panel: Offscreen::new(panel_width, panel_height),
     }
 }
 
 pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
-    let map_width = game_state.map.len() as i32;
-    let map_height = game_state.map[0].len() as i32;
+    let map_width = renderer.map.width();
+    let map_height = renderer.map.height();
     for y in 0..map_height {
         for x in 0..map_width {
-            renderer.root.set_char_background(
+            renderer.map.set_char_background(
                 x,
                 y,
                 colors::DARKER_GREEN,
@@ -39,7 +46,7 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
         }
     }
 
-    renderer.root.set_char_background(
+    renderer.map.set_char_background(
         game_state.cursor.x,
         game_state.cursor.y,
         colors::LIGHT_GREY,
@@ -47,8 +54,8 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
     );
 
     for actor in &game_state.actors {
-        renderer.root.set_default_foreground(colors::BLUE);
-        renderer.root.put_char(
+        renderer.map.set_default_foreground(colors::BLUE);
+        renderer.map.put_char(
             actor.x,
             actor.y,
             'A',
@@ -56,10 +63,35 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
         );
     }
 
+    blit(
+        &renderer.map,
+        (0, 0),
+        (map_width, map_height),
+        &mut renderer.root,
+        (0, 0),
+        1.0,
+        1.0,
+    );
+
+    renderer.panel.set_default_background(colors::BLACK);
+    renderer.panel.clear();
+
+    let panel_width = renderer.panel.width();
+    let panel_height = renderer.panel.height();
+    blit(
+        &renderer.panel,
+        (0, 0),
+        (panel_width, panel_height),
+        &mut renderer.root,
+        (0, map_height),
+        1.0,
+        1.0,
+    );
+
     renderer.root.flush();
 
     for actor in &game_state.actors {
-        renderer.root.put_char(
+        renderer.map.put_char(
             actor.x,
             actor.y,
             ' ',
