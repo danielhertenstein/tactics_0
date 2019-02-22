@@ -25,22 +25,16 @@ fn handle_moving_cursor(input_state: Key, game_state: &mut GameState) {
 fn move_cursor(dx: i32, dy: i32, game_state: &mut GameState) {
     let map_width = game_state.map.len() as i32;
     let map_height = game_state.map[0].len() as i32;
-    for y in 0..map_height {
-        for x in 0..map_width {
-            let new_x = x + dx;
-            let new_y = y + dy;
 
-            if new_x < 0 || new_y < 0 || new_x == map_width || new_y == map_height {
-                continue
-            }
+    let new_x = game_state.cursor.x + dx;
+    let new_y = game_state.cursor.y + dy;
 
-            if game_state.map[x as usize][y as usize].cursored {
-                game_state.map[x as usize][y as usize].cursored = false;
-                game_state.map[new_x as usize][new_y as usize].cursored = true;
-                return;
-            }
-        }
+    if new_x < 0 || new_y < 0 || new_x == map_width || new_y == map_height {
+        return
     }
+
+    game_state.cursor.x = new_x;
+    game_state.cursor.y = new_y;
 }
 
 fn select_tile(game_state: &mut GameState) {

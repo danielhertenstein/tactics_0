@@ -4,15 +4,11 @@ pub struct Actor {
 }
 
 #[derive(Clone)]
-pub struct Tile {
-    pub cursored: bool,
-}
+pub struct Tile;
 
 impl Tile {
     pub fn new() -> Tile {
-        Tile {
-            cursored: false,
-        }
+        Tile {}
     }
 }
 
@@ -23,22 +19,27 @@ pub enum PlayerState {
     UnitSelected,
 }
 
+pub struct Cursor {
+    pub x: i32,
+    pub y: i32,
+}
+
 pub struct GameState {
     pub actors: Vec<Actor>,
     pub map: Map,
     pub player_state: PlayerState,
+    pub cursor: Cursor,
 }
 
 pub fn initial_game_state(screen_height: i32, screen_width: i32) -> GameState {
-    let mut map = vec![vec![Tile::new(); screen_height as usize]; screen_width as usize];
-    map[0][0].cursored = true;
 
     GameState {
         actors: vec![
             Actor { x: 0, y: 0 },
             Actor { x: 0, y: 1 },
         ],
-        map,
+        map: vec![vec![Tile::new(); screen_height as usize]; screen_width as usize],
         player_state: PlayerState::MovingCursor,
+        cursor: Cursor { x: 0, y: 0 }
     }
 }

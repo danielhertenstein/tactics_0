@@ -30,19 +30,21 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
     let map_height = game_state.map[0].len() as i32;
     for y in 0..map_height {
         for x in 0..map_width {
-            let selected = game_state.map[x as usize][y as usize].cursored;
-            let color = match selected {
-                true => colors::LIGHT_GREY,
-                false => colors::DARKER_GREEN,
-            };
             renderer.root.set_char_background(
                 x,
                 y,
-                color,
+                colors::DARKER_GREEN,
                 BackgroundFlag::Set
             );
         }
     }
+
+    renderer.root.set_char_background(
+        game_state.cursor.x,
+        game_state.cursor.y,
+        colors::LIGHT_GREY,
+        BackgroundFlag::Set,
+    );
 
     for actor in &game_state.actors {
         renderer.root.set_default_foreground(colors::BLUE);
