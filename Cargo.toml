@@ -1,8 +1,9 @@
-[package]
-name = "tactics_0"
-version = "0.1.0"
-authors = ["Daniel Hertenstein <daniel.hertenstein@gmail.com>"]
-edition = "2018"
+[workspace]
 
-[dependencies]
-tcod = "0.13.0"
+members = [
+    "tactics_0",
+    "renderer",
+    "game_state",
+    "input_handler",
+    "player_control",
+]
