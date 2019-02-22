@@ -4,7 +4,7 @@ use tcod::chars;
 use tcod::colors;
 use tcod::console::*;
 
-use game_state::GameState;
+use game_state::{GameState, PlayerState};
 
 const LIMIT_FPS: i32 = 60;
 
@@ -19,7 +19,7 @@ pub fn initialize_rendering_engine(screen_height: i32, screen_width: i32, map_he
                                    map_width: i32, panel_height: i32,
                                    panel_width: i32) -> Renderer {
     let root = Root::initializer()
-        .font("arial10x10.png", FontLayout::Tcod)
+        .font("dejavu16x16_gs_tc.png", FontLayout::Tcod)
         .font_type(FontType::Greyscale)
         .size(screen_width, screen_height)
         .title("Tactics-0")
@@ -47,13 +47,6 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
         }
     }
 
-    renderer.map.set_char_background(
-        game_state.cursor.x,
-        game_state.cursor.y,
-        colors::LIGHT_GREY,
-        BackgroundFlag::Set,
-    );
-
     for actor in &game_state.actors {
         renderer.map.set_default_foreground(colors::BLUE);
         renderer.map.put_char(
@@ -63,6 +56,43 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
             BackgroundFlag::None
         );
     }
+
+    if game_state.player_state == PlayerState::MovingActor {
+        let actor = game_state.actors
+            .iter()
+            .find(|actor| actor.selected)
+            .unwrap();
+
+        for x in -actor.move_range..=actor.move_range {
+            for y in -actor.move_range..=actor.move_range {
+                if x.abs() + y.abs() > actor.move_range {
+                    continue
+                }
+
+                let new_x = actor.x + x;
+                let new_y = actor.y + y;
+
+                if new_x > map_width || new_x < 0 || new_y > map_width || new_y < 0 {
+                    continue
+                }
+
+                renderer.map.set_char_background(
+                    new_x,
+                    new_y,
+                    colors::LIGHT_BLUE,
+                    BackgroundFlag::Set
+                );
+
+            }
+        }
+    }
+
+    renderer.map.set_char_background(
+        game_state.cursor.x,
+        game_state.cursor.y,
+        colors::LIGHT_GREY,
+        BackgroundFlag::Set,
+    );
 
     blit(
         &renderer.map,

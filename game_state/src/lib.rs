@@ -4,6 +4,7 @@ pub struct Actor {
     pub name: String,
     pub selected: bool,
     pub selected_menu: Menu,
+    pub move_range: i32,
 }
 
 #[derive(Clone)]
@@ -23,6 +24,7 @@ impl Tile {
 
 type Map = Vec<Vec<Tile>>;
 
+#[derive(PartialEq)]
 pub enum PlayerState {
     MovingCursor,
     UnitSelected,
@@ -69,6 +71,7 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 name: String::from("Percy"),
                 selected: false,
                 selected_menu: vec![MenuOption::Move, MenuOption::Attack],
+                move_range: 4,
             },
             Actor {
                 x: 0,
@@ -76,6 +79,7 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 name: String::from("Bad Guy"),
                 selected: false,
                 selected_menu: vec![MenuOption::Move, MenuOption::Attack],
+                move_range: 3,
             },
         ],
         map: vec![vec![Tile::new(); map_height as usize]; map_width as usize],
