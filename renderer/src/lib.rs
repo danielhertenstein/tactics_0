@@ -9,8 +9,6 @@ const LIMIT_FPS: i32 = 60;
 
 pub struct Renderer {
     root: Root,
-    screen_height: i32,
-    screen_width: i32,
 }
 
 
@@ -24,14 +22,14 @@ pub fn initialize_rendering_engine(screen_height: i32, screen_width: i32) -> Ren
     tcod::system::set_fps(LIMIT_FPS);
     Renderer {
         root,
-        screen_height,
-        screen_width,
     }
 }
 
 pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
-    for y in 0..renderer.screen_height {
-        for x in 0..renderer.screen_width {
+    let map_width = game_state.map.len() as i32;
+    let map_height = game_state.map[0].len() as i32;
+    for y in 0..map_height {
+        for x in 0..map_width {
             let selected = game_state.map[x as usize][y as usize].selected;
             let color = match selected {
                 true => colors::LIGHT_GREY,
