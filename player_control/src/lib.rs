@@ -7,7 +7,7 @@ use game_state::{GameState, PlayerState};
 pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
     match &game_state.player_state {
         PlayerState::MovingCursor => handle_moving_cursor(input_state, game_state),
-        PlayerState::UnitSelected => {}
+        PlayerState::UnitSelected => handle_unit_selected(input_state, game_state),
     }
 }
 
@@ -49,4 +49,29 @@ fn select_tile(game_state: &mut GameState) {
         let tile = &mut game_state.map[game_state.cursor.x as usize][game_state.cursor.y as usize];
         tile.selected = true;
     }
+
+    game_state.player_state = PlayerState::UnitSelected;
+}
+
+fn handle_unit_selected(input_state: Key, game_state: &mut GameState) {
+    match input_state {
+        Key { code: KeyCode::Escape, .. } => deselect_tile(game_state),
+        _ => {}
+    }
+}
+
+fn deselect_tile(game_state: &mut GameState) {
+    let cursor_x = game_state.cursor.x;
+    let cursor_y = game_state.cursor.y;
+
+    if let Some(actor) = game_state.actors
+        .iter_mut()
+        .find(|actor| actor.x == cursor_x && actor.y == cursor_y) {
+        actor.selected = false;
+    } else {
+        let tile = &mut game_state.map[game_state.cursor.x as usize][game_state.cursor.y as usize];
+        tile.selected = false;
+    }
+
+    game_state.player_state = PlayerState::MovingCursor;
 }
