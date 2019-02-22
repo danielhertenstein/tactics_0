@@ -42,11 +42,3 @@ pub fn initial_game_state(screen_height: i32, screen_width: i32) -> GameState {
         player_state: PlayerState::MovingCursor,
     }
 }
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}

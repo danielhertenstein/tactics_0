@@ -64,11 +64,3 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
             BackgroundFlag::None);
     }
 }
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
