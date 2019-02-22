@@ -2,6 +2,7 @@ extern crate tcod;
 
 use tcod::colors;
 use tcod::console::*;
+use tcod::input::{self, Event, Key, KeyCode};
 
 const SCREEN_WIDTH: i32 = 20;
 const SCREEN_HEIGHT: i32 = 20;
@@ -38,6 +39,7 @@ fn main() {
     let mut game_state = initial_game_state();
 
     loop {
+        let input_state = capture_input_state();
         render_system(&mut renderer, &game_state);
     }
 }
@@ -62,6 +64,13 @@ fn initial_game_state() -> GameState {
             Actor { x: 0, y: 1 },
         ],
         map: vec![vec![Tile::new(); SCREEN_HEIGHT as usize]; SCREEN_WIDTH as usize],
+    }
+}
+
+fn capture_input_state() -> Key {
+    match input::check_for_event(input::KEY_PRESS) {
+        Some((_, Event::Key(key))) => key,
+        _ => Default::default(),
     }
 }
 
