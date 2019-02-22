@@ -4,8 +4,8 @@ use tcod::colors;
 use tcod::console::*;
 use tcod::input::{self, Event, Key, KeyCode};
 
-const SCREEN_WIDTH: i32 = 20;
-const SCREEN_HEIGHT: i32 = 20;
+const SCREEN_WIDTH: usize = 20;
+const SCREEN_HEIGHT: usize = 20;
 
 const LIMIT_FPS: i32 = 20;
 
@@ -52,7 +52,7 @@ fn initialize_rendering_engine() -> Renderer {
     let root = Root::initializer()
         .font("arial10x10.png", FontLayout::Tcod)
         .font_type(FontType::Greyscale)
-        .size(SCREEN_WIDTH, SCREEN_HEIGHT)
+        .size(SCREEN_WIDTH as i32, SCREEN_HEIGHT as i32)
         .title("Tactics-0")
         .init();
     tcod::system::set_fps(LIMIT_FPS);
@@ -62,8 +62,8 @@ fn initialize_rendering_engine() -> Renderer {
 }
 
 fn initial_game_state() -> GameState {
-    let mut map = vec![vec![Tile::new(); SCREEN_HEIGHT as usize]; SCREEN_WIDTH as usize];
-    map[3][0].selected = true;
+    let mut map = vec![vec![Tile::new(); SCREEN_HEIGHT]; SCREEN_WIDTH];
+    map[0][0].selected = true;
 
     GameState {
         actors: vec![
@@ -84,14 +84,14 @@ fn capture_input_state() -> Key {
 fn render_system(renderer: &mut Renderer, game_state: &GameState) {
     for y in 0..SCREEN_HEIGHT {
         for x in 0..SCREEN_WIDTH {
-            let selected = game_state.map[x as usize][y as usize].selected;
+            let selected = game_state.map[x][y].selected;
             let color = match selected {
                 true => colors::LIGHT_GREY,
                 false => colors::DARKER_GREEN,
             };
             renderer.root.set_char_background(
-                x,
-                y,
+                x as i32,
+                y as i32,
                 color,
                 BackgroundFlag::Set
             );
