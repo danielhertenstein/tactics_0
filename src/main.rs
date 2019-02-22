@@ -15,11 +15,15 @@ struct Actor {
 }
 
 #[derive(Clone)]
-struct Tile;
+struct Tile {
+    selected: bool,
+}
 
 impl Tile {
     pub fn new() -> Tile {
-        Tile {}
+        Tile {
+            selected: false,
+        }
     }
 }
 
@@ -58,12 +62,15 @@ fn initialize_rendering_engine() -> Renderer {
 }
 
 fn initial_game_state() -> GameState {
+    let mut map = vec![vec![Tile::new(); SCREEN_HEIGHT as usize]; SCREEN_WIDTH as usize];
+    map[3][0].selected = true;
+
     GameState {
         actors: vec![
             Actor { x: 0, y: 0 },
             Actor { x: 0, y: 1 },
         ],
-        map: vec![vec![Tile::new(); SCREEN_HEIGHT as usize]; SCREEN_WIDTH as usize],
+        map,
     }
 }
 
@@ -77,10 +84,15 @@ fn capture_input_state() -> Key {
 fn render_system(renderer: &mut Renderer, game_state: &GameState) {
     for y in 0..SCREEN_HEIGHT {
         for x in 0..SCREEN_WIDTH {
+            let selected = game_state.map[x as usize][y as usize].selected;
+            let color = match selected {
+                true => colors::LIGHT_GREY,
+                false => colors::DARKER_GREEN,
+            };
             renderer.root.set_char_background(
                 x,
                 y,
-                colors::GREEN,
+                color,
                 BackgroundFlag::Set
             );
         }
