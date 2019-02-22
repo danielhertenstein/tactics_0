@@ -30,7 +30,7 @@ pub fn render_system(renderer: &mut Renderer, game_state: &GameState) {
     let map_height = game_state.map[0].len() as i32;
     for y in 0..map_height {
         for x in 0..map_width {
-            let selected = game_state.map[x as usize][y as usize].selected;
+            let selected = game_state.map[x as usize][y as usize].cursored;
             let color = match selected {
                 true => colors::LIGHT_GREY,
                 false => colors::DARKER_GREEN,

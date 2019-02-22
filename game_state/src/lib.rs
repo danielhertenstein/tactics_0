@@ -5,13 +5,13 @@ pub struct Actor {
 
 #[derive(Clone)]
 pub struct Tile {
-    pub selected: bool,
+    pub cursored: bool,
 }
 
 impl Tile {
     pub fn new() -> Tile {
         Tile {
-            selected: false,
+            cursored: false,
         }
     }
 }
@@ -31,7 +31,7 @@ pub struct GameState {
 
 pub fn initial_game_state(screen_height: i32, screen_width: i32) -> GameState {
     let mut map = vec![vec![Tile::new(); screen_height as usize]; screen_width as usize];
-    map[0][0].selected = true;
+    map[0][0].cursored = true;
 
     GameState {
         actors: vec![
