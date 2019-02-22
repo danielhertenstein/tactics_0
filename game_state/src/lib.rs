@@ -26,6 +26,7 @@ type Map = Vec<Vec<Tile>>;
 pub enum PlayerState {
     MovingCursor,
     UnitSelected,
+    MovingActor,
 }
 
 pub struct Cursor {
