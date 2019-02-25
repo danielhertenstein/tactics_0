@@ -29,6 +29,7 @@ pub enum PlayerState {
     MovingCursor,
     UnitSelected,
     MovingActor,
+    ActorAttacking,
 }
 
 pub struct Cursor {

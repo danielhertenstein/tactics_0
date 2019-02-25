@@ -2,13 +2,14 @@ extern crate tcod;
 
 use tcod::input::{Key, KeyCode};
 
-use game_state::{GameState, PlayerState};
+use game_state::{GameState, PlayerState, MenuOption};
 
 pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
     match &game_state.player_state {
         PlayerState::MovingCursor => handle_moving_cursor(input_state, game_state),
         PlayerState::UnitSelected => handle_unit_selected(input_state, game_state),
         PlayerState::MovingActor => handle_moving_actor(input_state, game_state),
+        PlayerState::ActorAttacking => handle_actor_attacking(input_state, game_state),
     }
 }
 
@@ -118,11 +119,14 @@ fn menu_option_down(game_state: &mut GameState) {
 
 // TODO: This doesn't work as a general method since menus can have different options
 fn menu_option_select(game_state: &mut GameState) {
-    if game_state.actors
-        .iter()
-        .find(|actor| actor.selected)
-        .is_some() {
-        game_state.player_state = PlayerState::MovingActor;
+    if let Some(current_menu) = &game_state.current_menu {
+        let current_menu_option = game_state.current_menu_option.unwrap();
+        let menu_option = &current_menu[current_menu_option];
+        match menu_option {
+            MenuOption::Move => game_state.player_state = PlayerState::MovingActor,
+            MenuOption::Attack => game_state.player_state = PlayerState::ActorAttacking,
+        }
+
     }
 }
 
@@ -173,3 +177,5 @@ fn cancel_move_actor(game_state: &mut GameState) {
 
     game_state.player_state = PlayerState::UnitSelected;
 }
+
+fn handle_actor_attacking(input_state: Key, game_state: &mut GameState) {}
