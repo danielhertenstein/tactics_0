@@ -118,7 +118,12 @@ fn menu_option_down(game_state: &mut GameState) {
 
 // TODO: This doesn't work as a general method since menus can have different options
 fn menu_option_select(game_state: &mut GameState) {
-    game_state.player_state = PlayerState::MovingActor;
+    if game_state.actors
+        .iter()
+        .find(|actor| actor.selected)
+        .is_some() {
+        game_state.player_state = PlayerState::MovingActor;
+    }
 }
 
 fn handle_moving_actor(input_state: Key, game_state: &mut GameState) {
