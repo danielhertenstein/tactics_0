@@ -142,6 +142,11 @@ fn move_actor(game_state: &mut GameState) {
     let cursor_x = game_state.cursor.x;
     let cursor_y = game_state.cursor.y;
 
+    let actor_under_cursor = game_state.actors
+            .iter()
+            .find(|actor| actor.x == cursor_x && actor.y == cursor_y)
+            .is_some();
+
     let actor = game_state.actors
         .iter_mut()
         .find(|actor| actor.selected)
@@ -149,11 +154,11 @@ fn move_actor(game_state: &mut GameState) {
 
     let cursor_distance_from_actor = (actor.x - cursor_x).abs() + (actor.y - cursor_y).abs();
 
-    if cursor_distance_from_actor <= actor.move_range {
-        actor.x = cursor_x;
-        actor.y = cursor_y;
+    if cursor_distance_from_actor <= actor.move_range && !actor_under_cursor {
+            actor.x = cursor_x;
+            actor.y = cursor_y;
 
-        game_state.player_state = PlayerState::UnitSelected;
+            game_state.player_state = PlayerState::UnitSelected;
     }
 
 }
