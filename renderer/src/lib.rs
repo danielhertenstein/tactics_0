@@ -75,12 +75,19 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
 
             for x in -actor.move_range..=actor.move_range {
                 for y in -actor.move_range..=actor.move_range {
-                    if x.abs() + y.abs() > actor.move_range {
-                        continue
-                    }
-
                     let new_x = actor.x + x;
                     let new_y = actor.y + y;
+
+                    let actor_on_tile = game_state.actors
+                        .iter()
+                        .find(|actor| actor.x == new_x && actor.y == new_y)
+                        .is_some();
+
+                    if x.abs() + y.abs() > actor.move_range
+                        || (x == 0 && y == 0)
+                        || actor_on_tile {
+                        continue
+                    }
 
                     if new_x > map_width || new_x < 0 || new_y > map_width || new_y < 0 {
                         continue
@@ -103,7 +110,7 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
 
             for x in -actor.attack_range..=actor.attack_range {
                 for y in -actor.attack_range..=actor.attack_range {
-                    if x.abs() + y.abs() > actor.attack_range {
+                    if x.abs() + y.abs() > actor.attack_range || (x == 0 && y == 0)  {
                         continue
                     }
 
