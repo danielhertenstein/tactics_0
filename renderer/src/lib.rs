@@ -78,12 +78,13 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
                     let new_x = actor.x + x;
                     let new_y = actor.y + y;
 
-                    let actor_on_tile = game_state.actors
+                    let other_actor_on_tile = game_state.actors
                         .iter()
+                        .filter(|actor| !actor.selected)
                         .find(|actor| actor.x == new_x && actor.y == new_y)
                         .is_some();
 
-                    if x.abs() + y.abs() > actor.move_range || actor_on_tile {
+                    if x.abs() + y.abs() > actor.move_range || other_actor_on_tile {
                         continue
                     }
 
