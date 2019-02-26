@@ -95,6 +95,34 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
                 }
             }
         },
+        PlayerState::ActorAttacking => {
+            let actor = game_state.actors
+                .iter()
+                .find(|actor| actor.selected)
+                .unwrap();
+
+            for x in -actor.attack_range..=actor.attack_range {
+                for y in -actor.attack_range..=actor.attack_range {
+                    if x.abs() + y.abs() > actor.attack_range {
+                        continue
+                    }
+
+                    let new_x = actor.x + x;
+                    let new_y = actor.y + y;
+
+                    if new_x > map_width || new_x < 0 || new_y > map_width || new_y < 0 {
+                        continue
+                    }
+
+                    renderer.map.set_char_background(
+                        new_x,
+                        new_y,
+                        colors::BRASS,
+                        BackgroundFlag::Set
+                    );
+                }
+            }
+        }
         _ => {},
     }
 
@@ -198,8 +226,29 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
                 TextAlignment::Left,
                 format!("Select a tile to move to"),
             );
-
         },
+        PlayerState::ActorAttacking => {
+            let actor = game_state.actors
+                .iter()
+                .find(|actor| actor.selected)
+                .unwrap();
+
+            renderer.panel.print_ex(
+                1,
+                1,
+                BackgroundFlag::None,
+                TextAlignment::Left,
+                format!("{}", actor.name)
+            );
+
+            renderer.panel.print_ex(
+                1,
+                2,
+                BackgroundFlag::None,
+                TextAlignment::Left,
+                format!("Select a tile to attack"),
+            );
+        }
         _ => {}
     }
 

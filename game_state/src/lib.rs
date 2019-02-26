@@ -5,6 +5,7 @@ pub struct Actor {
     pub selected: bool,
     pub selected_menu: Menu,
     pub move_range: i32,
+    pub attack_range: i32,
 }
 
 #[derive(Clone)]
@@ -73,6 +74,7 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 selected: false,
                 selected_menu: vec![MenuOption::Move, MenuOption::Attack],
                 move_range: 4,
+                attack_range: 1,
             },
             Actor {
                 x: 0,
@@ -81,6 +83,7 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 selected: false,
                 selected_menu: vec![MenuOption::Move, MenuOption::Attack],
                 move_range: 3,
+                attack_range: 1,
             },
         ],
         map: vec![vec![Tile::new(); map_height as usize]; map_width as usize],
