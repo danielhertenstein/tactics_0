@@ -83,9 +83,7 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
                         .find(|actor| actor.x == new_x && actor.y == new_y)
                         .is_some();
 
-                    if x.abs() + y.abs() > actor.move_range
-                        || (x == 0 && y == 0)
-                        || actor_on_tile {
+                    if x.abs() + y.abs() > actor.move_range || actor_on_tile {
                         continue
                     }
 
