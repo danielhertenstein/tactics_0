@@ -6,6 +6,8 @@ pub struct Actor {
     pub selected_menu: Menu,
     pub move_range: i32,
     pub attack_range: i32,
+    pub speed: i32,
+    pub player_controlled: bool
 }
 
 #[derive(Clone)]
@@ -27,6 +29,7 @@ type Map = Vec<Vec<Tile>>;
 
 #[derive(PartialEq)]
 pub enum PlayerState {
+    WaitingForTurn,
     MovingCursor,
     UnitSelected,
     MovingActor,
@@ -62,6 +65,8 @@ pub struct GameState {
     pub cursor: Cursor,
     pub current_menu: Option<Menu>,
     pub current_menu_option: Option<usize>,
+    // TODO: Switch to numeric array
+    pub charge_times: Vec<i32>,
 }
 
 pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
@@ -75,6 +80,8 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 selected_menu: vec![MenuOption::Move, MenuOption::Attack],
                 move_range: 4,
                 attack_range: 1,
+                speed: 7,
+                player_controlled: true,
             },
             Actor {
                 x: 0,
@@ -84,6 +91,8 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 selected_menu: vec![MenuOption::Move, MenuOption::Attack],
                 move_range: 3,
                 attack_range: 1,
+                speed: 4,
+                player_controlled: false,
             },
         ],
         map: vec![vec![Tile::new(); map_height as usize]; map_width as usize],
@@ -91,5 +100,6 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
         cursor: Cursor { x: 0, y: 0 },
         current_menu: None,
         current_menu_option: None,
+        charge_times: vec![0, 0],
     }
 }

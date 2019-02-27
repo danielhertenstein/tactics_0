@@ -6,11 +6,15 @@ use game_state::{GameState, PlayerState, MenuOption};
 
 pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
     match &game_state.player_state {
+        PlayerState::WaitingForTurn => handle_waiting_for_turn(game_state),
         PlayerState::MovingCursor => handle_moving_cursor(input_state, game_state),
         PlayerState::UnitSelected => handle_unit_selected(input_state, game_state),
         PlayerState::MovingActor => handle_moving_actor(input_state, game_state),
         PlayerState::ActorAttacking => handle_actor_attacking(input_state, game_state),
     }
+}
+
+fn handle_waiting_for_turn(game_state: &mut GameState) {
 }
 
 fn handle_moving_cursor(input_state: Key, game_state: &mut GameState) {
@@ -40,6 +44,7 @@ fn move_cursor(dx: i32, dy: i32, game_state: &mut GameState) {
 }
 
 fn select_tile(game_state: &mut GameState) {
+    // TODO: Can only select units controlled by the player
     let cursor_x = game_state.cursor.x;
     let cursor_y = game_state.cursor.y;
 
@@ -117,7 +122,6 @@ fn menu_option_down(game_state: &mut GameState) {
     }
 }
 
-// TODO: This doesn't work as a general method since menus can have different options
 fn menu_option_select(game_state: &mut GameState) {
     if let Some(current_menu) = &game_state.current_menu {
         let current_menu_option = game_state.current_menu_option.unwrap();

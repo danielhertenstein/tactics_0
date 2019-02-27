@@ -57,7 +57,11 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
     }
 
     for actor in &game_state.actors {
-        renderer.map.set_default_foreground(colors::BLUE);
+        let color = match actor.player_controlled {
+            true => colors::BLUE,
+            false => colors::RED,
+        };
+        renderer.map.set_default_foreground(color);
         renderer.map.put_char(
             actor.x,
             actor.y,
@@ -72,6 +76,10 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
                 .iter()
                 .find(|actor| actor.selected)
                 .unwrap();
+            let color = match actor.player_controlled {
+                true => colors::LIGHT_BLUE,
+                false => colors::LIGHT_RED,
+            };
 
             for x in -actor.move_range..=actor.move_range {
                 for y in -actor.move_range..=actor.move_range {
@@ -95,7 +103,7 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
                     renderer.map.set_char_background(
                         new_x,
                         new_y,
-                        colors::LIGHT_BLUE,
+                        color,
                         BackgroundFlag::Set
                     );
                 }
