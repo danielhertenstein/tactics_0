@@ -15,6 +15,33 @@ pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
 }
 
 fn handle_waiting_for_turn(game_state: &mut GameState) {
+    let turn_ready = game_state.charge_times
+        .iter()
+        .zip(game_state.actors.iter().map(|a| &a.speed))
+        .enumerate()
+        .filter(|&(_i, (&c, _s))| c >= 100)
+        .max_by(|&(_i1, (&c1, &s1)), &(_i2, (&c2, &s2))| {
+            if c1 == c2 {
+                s1.cmp(&s2)
+            } else {
+                c1.cmp(&c2)
+            }
+        });
+
+    match turn_ready {
+        Some((index, (_charge, _speed))) => {
+            let actor = &game_state.actors[index];
+            game_state.cursor.x = actor.x;
+            game_state.cursor.y = actor.y;
+            select_tile(game_state)
+        },
+        None => {
+            for i in 0..game_state.charge_times.len() {
+                game_state.charge_times[i] += game_state.actors[i].speed;
+            }
+
+        },
+    }
 }
 
 fn handle_moving_cursor(input_state: Key, game_state: &mut GameState) {
@@ -24,6 +51,9 @@ fn handle_moving_cursor(input_state: Key, game_state: &mut GameState) {
         Key { code: KeyCode::Left, .. } => move_cursor(-1, 0, game_state),
         Key { code: KeyCode::Right, .. } => move_cursor(1, 0, game_state),
         Key { code: KeyCode::Enter, .. } => select_tile(game_state),
+        Key { code: KeyCode::Escape, .. } => {
+            game_state.player_state = PlayerState::WaitingForTurn
+        },
         _ => {},
     }
 }
