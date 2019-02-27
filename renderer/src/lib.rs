@@ -5,6 +5,7 @@ use tcod::colors;
 use tcod::console::*;
 
 use game_state::{GameState, PlayerState};
+use game_state::Actor;
 
 const LIMIT_FPS: i32 = 60;
 
@@ -170,13 +171,8 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
             if let Some(actor) = game_state.actors
                 .iter()
                 .find(|actor| actor.selected) {
-                renderer.panel.print_ex(
-                    1,
-                    1,
-                    BackgroundFlag::None,
-                    TextAlignment::Left,
-                    format!("{}", actor.name)
-                );
+
+                show_unit_info(renderer, game_state, actor);
 
                 if let Some(menu) = &game_state.current_menu {
                     for (i, option) in menu.iter().enumerate() {
@@ -266,8 +262,6 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
         _ => {}
     }
 
-
-
     let map_height = renderer.map.height();
     blit(
         &renderer.panel,
@@ -277,6 +271,28 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
         (0, map_height),
         1.0,
         1.0,
+    );
+}
+
+fn show_unit_info(renderer: &mut Renderer, game_state: &GameState, actor: &Actor) {
+    let agent_index = game_state.actors
+        .iter()
+        .position(|a| a.name == actor.name )
+        .expect("Could not match unit name to an Actor in game_state.actors");
+
+    renderer.panel.print_ex(
+        1,
+        1,
+        BackgroundFlag::None,
+        TextAlignment::Left,
+        format!("{}", actor.name),
+    );
+    renderer.panel.print_ex(
+        1,
+        2,
+        BackgroundFlag::None,
+        TextAlignment::Left,
+        format!("CT: {}/100", game_state.charge_times[agent_index]),
     );
 }
 
