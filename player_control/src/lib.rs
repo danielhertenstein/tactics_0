@@ -159,6 +159,13 @@ fn menu_option_select(game_state: &mut GameState) {
         match menu_option {
             MenuOption::Move => game_state.player_state = PlayerState::MovingActor,
             MenuOption::Attack => game_state.player_state = PlayerState::ActorAttacking,
+            MenuOption::EndTurn => {
+                if let Some(index) = game_state.active_actor_index {
+                    game_state.charge_times[index] = 0;
+                    game_state.active_actor_index = None;
+                    game_state.player_state = PlayerState::MovingCursor;
+                }
+            }
         }
 
     }

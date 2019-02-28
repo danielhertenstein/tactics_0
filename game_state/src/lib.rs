@@ -46,6 +46,7 @@ type Menu = Vec<MenuOption>;
 pub enum MenuOption {
     Move,
     Attack,
+    EndTurn,
 }
 
 impl std::fmt::Display for MenuOption {
@@ -53,6 +54,7 @@ impl std::fmt::Display for MenuOption {
         match *self {
             MenuOption::Move => write!(f, "Move"),
             MenuOption::Attack => write!(f, "Attack"),
+            MenuOption::EndTurn => write!(f, "End Turn"),
         }
     }
 }
@@ -77,7 +79,7 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 y: 0,
                 name: String::from("Percy"),
                 selected: false,
-                selected_menu: vec![MenuOption::Move, MenuOption::Attack],
+                selected_menu: vec![MenuOption::Move, MenuOption::Attack, MenuOption::EndTurn],
                 move_range: 4,
                 attack_range: 1,
                 speed: 7,
@@ -88,7 +90,7 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 y: 1,
                 name: String::from("Bad Guy"),
                 selected: false,
-                selected_menu: vec![MenuOption::Move, MenuOption::Attack],
+                selected_menu: vec![MenuOption::Move, MenuOption::Attack, MenuOption::EndTurn],
                 move_range: 3,
                 attack_range: 1,
                 speed: 4,
