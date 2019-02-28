@@ -20,7 +20,15 @@ pub fn clock_tick_system(game_state: &mut GameState) {
         .map(|(i, (_c, _s))| i);
 
     match turn_ready_for {
-        Some(index) => game_state.active_actor_index = Some(index),
+        Some(index) => {
+            game_state.active_actor_index = Some(index);
+            let actor = &game_state.actors[index];
+            if actor.player_controlled {
+                game_state.cursor.x = actor.x;
+                game_state.cursor.y = actor.y;
+                select_tile(game_state);
+            }
+        },
         None => {
             for i in 0..game_state.charge_times.len() {
                 game_state.charge_times[i] += game_state.actors[i].speed;
