@@ -4,18 +4,8 @@ use tcod::input::{Key, KeyCode};
 
 use game_state::{GameState, PlayerState, MenuOption};
 
-pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
-    match &game_state.player_state {
-        PlayerState::WaitingForTurn => handle_waiting_for_turn(game_state),
-        PlayerState::MovingCursor => handle_moving_cursor(input_state, game_state),
-        PlayerState::UnitSelected => handle_unit_selected(input_state, game_state),
-        PlayerState::MovingActor => handle_moving_actor(input_state, game_state),
-        PlayerState::ActorAttacking => handle_actor_attacking(input_state, game_state),
-    }
-}
-
-fn handle_waiting_for_turn(game_state: &mut GameState) {
-    let turn_ready = game_state.charge_times
+pub fn clock_tick_system(game_state: &mut GameState) {
+    let turn_ready_for = game_state.charge_times
         .iter()
         .zip(game_state.actors.iter().map(|a| &a.speed))
         .enumerate()
@@ -26,21 +16,26 @@ fn handle_waiting_for_turn(game_state: &mut GameState) {
             } else {
                 c1.cmp(&c2)
             }
-        });
+        })
+        .map(|(i, (_c, _s))| i);
 
-    match turn_ready {
-        Some((index, (_charge, _speed))) => {
-            let actor = &game_state.actors[index];
-            game_state.cursor.x = actor.x;
-            game_state.cursor.y = actor.y;
-            select_tile(game_state)
-        },
+    match turn_ready_for {
+        Some(index) => game_state.active_actor_index = Some(index),
         None => {
             for i in 0..game_state.charge_times.len() {
                 game_state.charge_times[i] += game_state.actors[i].speed;
             }
 
         },
+    }
+}
+
+pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
+    match game_state.player_state {
+        PlayerState::MovingCursor => handle_moving_cursor(input_state, game_state),
+        PlayerState::UnitSelected => handle_unit_selected(input_state, game_state),
+        PlayerState::MovingActor => handle_moving_actor(input_state, game_state),
+        PlayerState::ActorAttacking => handle_actor_attacking(input_state, game_state),
     }
 }
 
@@ -51,9 +46,6 @@ fn handle_moving_cursor(input_state: Key, game_state: &mut GameState) {
         Key { code: KeyCode::Left, .. } => move_cursor(-1, 0, game_state),
         Key { code: KeyCode::Right, .. } => move_cursor(1, 0, game_state),
         Key { code: KeyCode::Enter, .. } => select_tile(game_state),
-        Key { code: KeyCode::Escape, .. } => {
-            game_state.player_state = PlayerState::WaitingForTurn
-        },
         _ => {},
     }
 }

@@ -29,7 +29,6 @@ type Map = Vec<Vec<Tile>>;
 
 #[derive(PartialEq)]
 pub enum PlayerState {
-    WaitingForTurn,
     MovingCursor,
     UnitSelected,
     MovingActor,
@@ -67,6 +66,7 @@ pub struct GameState {
     pub current_menu_option: Option<usize>,
     // TODO: Switch to numeric array
     pub charge_times: Vec<i32>,
+    pub active_actor_index: Option<usize>,
 }
 
 pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
@@ -101,5 +101,6 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
         current_menu: None,
         current_menu_option: None,
         charge_times: vec![0, 0],
+        active_actor_index: None,
     }
 }

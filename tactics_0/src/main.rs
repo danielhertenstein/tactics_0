@@ -24,10 +24,17 @@ fn main() {
     let mut game_state = initial_game_state(MAP_HEIGHT, MAP_WIDTH);
 
     loop {
-        let input_state = capture_input_state();
-
-        player_control_system(input_state, &mut game_state);
+        match game_state.active_actor_index {
+            Some(index) if game_state.actors[index].player_controlled => {
+                let input_state = capture_input_state();
+                player_control_system(input_state, &mut game_state);
+            },
+            Some(_index) => ai_control_system(&mut game_state),
+            None => clock_tick_system(&mut game_state),
+        }
 
         render_system(&mut renderer, &game_state);
     }
 }
+
+fn ai_control_system(game_state: &mut GameState) {}
