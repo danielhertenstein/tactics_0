@@ -74,7 +74,6 @@ fn move_cursor(dx: i32, dy: i32, game_state: &mut GameState) {
 }
 
 fn select_tile(game_state: &mut GameState) {
-    // TODO: Can only select units controlled by the player
     let cursor_x = game_state.cursor.x;
     let cursor_y = game_state.cursor.y;
 
@@ -84,8 +83,10 @@ fn select_tile(game_state: &mut GameState) {
 
     if let Some(actor) = actor {
         actor.selected = true;
-        game_state.current_menu = Some(actor.selected_menu.clone());
-        game_state.current_menu_option = Some(0);
+        if actor.player_controlled {
+            game_state.current_menu = Some(actor.selected_menu.clone());
+            game_state.current_menu_option = Some(0);
+        }
     } else {
         let tile = &mut game_state.map[game_state.cursor.x as usize][game_state.cursor.y as usize];
         tile.selected = true;
