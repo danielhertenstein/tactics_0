@@ -54,6 +54,8 @@ fn handle_moving_cursor(input_state: Key, game_state: &mut GameState) {
         Key { code: KeyCode::Left, .. } => move_cursor(-1, 0, game_state),
         Key { code: KeyCode::Right, .. } => move_cursor(1, 0, game_state),
         Key { code: KeyCode::Enter, .. } => select_tile(game_state),
+        // TODO: Might want to bring up menu if cursor already on active unit
+        Key { code: KeyCode::Escape, .. } => return_to_active_unit(game_state),
         _ => {},
     }
 }
@@ -93,6 +95,20 @@ fn select_tile(game_state: &mut GameState) {
     }
 
     game_state.player_state = PlayerState::UnitSelected;
+}
+
+fn return_to_active_unit(game_state: &mut GameState) {
+    match game_state.active_actor_index {
+        Some(index) => {
+            let actor = &game_state.actors[index];
+            if actor.player_controlled {
+                game_state.cursor.x = actor.x;
+                game_state.cursor.y = actor.y;
+                select_tile(game_state);
+            }
+        },
+        None => {},
+    }
 }
 
 fn handle_unit_selected(input_state: Key, game_state: &mut GameState) {
