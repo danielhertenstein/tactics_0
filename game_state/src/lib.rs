@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 pub struct Actor {
     pub x: i32,
     pub y: i32,
@@ -7,7 +9,8 @@ pub struct Actor {
     pub move_range: i32,
     pub attack_range: i32,
     pub speed: i32,
-    pub player_controlled: bool
+    pub player_controlled: bool,
+    pub battle_menu: ActorBattleMenu,
 }
 
 #[derive(Clone)]
@@ -21,6 +24,24 @@ impl Tile {
         Tile {
             terrain: String::from("Grass"),
             selected: false,
+        }
+    }
+}
+
+pub struct ActorBattleMenu {
+    pub menu: Menu,
+    pub option_enabled: HashMap<MenuOption, bool>,
+}
+
+impl ActorBattleMenu {
+    pub fn new() -> ActorBattleMenu {
+        ActorBattleMenu {
+            menu: vec![MenuOption::Move, MenuOption::Attack, MenuOption::EndTurn],
+            option_enabled: [
+                (MenuOption::Move, true),
+                (MenuOption::Attack, true),
+                (MenuOption::EndTurn, true),
+            ].iter().cloned().collect(),
         }
     }
 }
@@ -42,7 +63,7 @@ pub struct Cursor {
 
 type Menu = Vec<MenuOption>;
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum MenuOption {
     Move,
     Attack,
@@ -84,6 +105,7 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 attack_range: 1,
                 speed: 7,
                 player_controlled: true,
+                battle_menu: ActorBattleMenu::new(),
             },
             Actor {
                 x: 3,
@@ -95,6 +117,7 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 attack_range: 1,
                 speed: 4,
                 player_controlled: false,
+                battle_menu: ActorBattleMenu::new(),
             },
         ],
         map: vec![vec![Tile::new(); map_height as usize]; map_width as usize],

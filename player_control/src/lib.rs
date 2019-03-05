@@ -32,6 +32,7 @@ pub fn clock_tick_system(game_state: &mut GameState) {
         None => {
             for i in 0..game_state.charge_times.len() {
                 game_state.charge_times[i] += game_state.actors[i].speed;
+                println!("{}: {}", game_state.actors[i].name, game_state.charge_times[i]);
             }
 
         },
@@ -176,15 +177,24 @@ fn menu_option_select(game_state: &mut GameState) {
         match menu_option {
             MenuOption::Move => game_state.player_state = PlayerState::MovingActor,
             MenuOption::Attack => game_state.player_state = PlayerState::ActorAttacking,
-            MenuOption::EndTurn => {
-                if let Some(index) = game_state.active_actor_index {
-                    game_state.charge_times[index] = 0;
-                    game_state.active_actor_index = None;
-                    game_state.player_state = PlayerState::MovingCursor;
-                }
-            }
+            MenuOption::EndTurn => end_turn(game_state),
         }
+    }
+}
 
+fn end_turn(game_state: &mut GameState) {
+    if let Some(index) = game_state.active_actor_index {
+        let battle_menu = &game_state.actors[index].battle_menu;
+        let mut new_charge_time = 80;
+        if battle_menu.option_enabled.get(&MenuOption::Move) == Some(&false) {
+            new_charge_time -= 30;
+        }
+        if battle_menu.option_enabled.get(&MenuOption::Attack) == Some(&false) {
+            new_charge_time -= 50;
+        }
+        game_state.charge_times[index] = new_charge_time;
+        game_state.active_actor_index = None;
+        game_state.player_state = PlayerState::MovingCursor;
     }
 }
 
@@ -221,6 +231,7 @@ fn move_actor(game_state: &mut GameState) {
         actor.x = cursor_x;
         actor.y = cursor_y;
 
+        actor.battle_menu.option_enabled.insert(MenuOption::Move, false);
         game_state.player_state = PlayerState::UnitSelected;
     }
 
@@ -250,4 +261,16 @@ fn handle_actor_attacking(input_state: Key, game_state: &mut GameState) {
 }
 
 fn attack(game_state: &mut GameState) {
+    println!("You swing wildly at the air.");
+
+    let actor = game_state.actors
+        .iter_mut()
+        .find(|actor| actor.selected)
+        .unwrap();
+
+    game_state.cursor.x = actor.x;
+    game_state.cursor.y = actor.y;
+
+    actor.battle_menu.option_enabled.insert(MenuOption::Attack, false);
+    game_state.player_state = PlayerState::UnitSelected;
 }
