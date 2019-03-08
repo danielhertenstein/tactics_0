@@ -6,4 +6,5 @@ members = [
     "game_state",
     "input_handler",
     "player_control",
+    "ai",
 ]

@@ -10,3 +10,4 @@ renderer = { path = "../renderer" }
 game_state = { path = "../game_state" }
 input_handler = { path = "../input_handler" }
 player_control = { path = "../player_control" }
+ai = { path = "../ai" }

@@ -1,0 +1,8 @@
+[package]
+name = "ai"
+version = "0.1.0"
+authors = ["Daniel Hertenstein <daniel.hertenstein@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+game_state = { path = "../game_state" }
