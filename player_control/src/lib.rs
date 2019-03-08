@@ -2,7 +2,7 @@ extern crate tcod;
 
 use tcod::input::{Key, KeyCode};
 
-use game_state::{GameState, PlayerState, MenuOption};
+use game_state::{GameState, PlayerState, MenuOption, Menu, Actor};
 
 pub fn clock_tick_system(game_state: &mut GameState) {
     let turn_ready_for = game_state.charge_times
@@ -88,8 +88,7 @@ fn select_tile(game_state: &mut GameState) {
     if let Some(actor) = actor {
         actor.selected = true;
         if actor.player_controlled {
-            game_state.current_menu = Some(actor.selected_menu.clone());
-            game_state.current_menu_option = Some(0);
+            game_state.menu = Some(create_battle_menu(actor));
         }
     } else {
         let tile = &mut game_state.map[game_state.cursor.x as usize][game_state.cursor.y as usize];
@@ -97,6 +96,22 @@ fn select_tile(game_state: &mut GameState) {
     }
 
     game_state.player_state = PlayerState::UnitSelected;
+}
+
+fn create_battle_menu(actor: &Actor) -> Menu {
+    let mut options = Vec::new();
+    if actor.can_move {
+        options.push(MenuOption::Move);
+    }
+    if actor.can_act {
+        options.push(MenuOption::Attack);
+    }
+    options.push(MenuOption::EndTurn);
+
+    Menu {
+        options,
+        selected_index: 0,
+    }
 }
 
 fn return_to_active_unit(game_state: &mut GameState) {
@@ -133,8 +148,7 @@ fn deselect_tile(game_state: &mut GameState) {
 
     if let Some(actor) = actor {
         actor.selected = false;
-        game_state.current_menu = None;
-        game_state.current_menu_option = None;
+        game_state.menu = None;
     } else {
         let tile = &mut game_state.map[game_state.cursor.x as usize][game_state.cursor.y as usize];
         tile.selected = false;
@@ -144,54 +158,45 @@ fn deselect_tile(game_state: &mut GameState) {
 }
 
 fn menu_option_up(game_state: &mut GameState) {
-    let current_menu_option = game_state.current_menu_option.take();
-    match current_menu_option {
-        Some(menu_option) => {
-            if menu_option > 0 {
-                game_state.current_menu_option = Some(menu_option - 1);
-            } else {
-                game_state.current_menu_option = Some(menu_option);
-            }
-        }
-        None => {}
+    match game_state.menu.as_mut() {
+        Some(menu) => menu.move_up(),
+        None => {},
     }
 }
 
 fn menu_option_down(game_state: &mut GameState) {
-    let current_menu_option = game_state.current_menu_option.take();
-    match current_menu_option {
-        Some(menu_option) => {
-            if menu_option < game_state.current_menu.as_ref().unwrap().len() - 1 {
-                game_state.current_menu_option = Some(menu_option + 1);
-            } else {
-                game_state.current_menu_option = Some(menu_option);
-            }
-        }
-        None => {}
+    match game_state.menu.as_mut() {
+        Some(menu) => menu.move_down(),
+        None => {},
     }
 }
 
 fn menu_option_select(game_state: &mut GameState) {
-    if let Some(current_menu) = &game_state.current_menu {
-        let current_menu_option = game_state.current_menu_option.unwrap();
-        let menu_option = &current_menu[current_menu_option];
-        match menu_option {
-            MenuOption::Move => game_state.player_state = PlayerState::MovingActor,
-            MenuOption::Attack => game_state.player_state = PlayerState::ActorAttacking,
-            MenuOption::EndTurn => end_turn(game_state),
-        }
+    // TODO: Being mutable here feels weird, but is needed for the select
+    match &mut game_state.menu {
+        Some(menu) => match menu.select() {
+            Some(&MenuOption::Move) => game_state.player_state = PlayerState::MovingActor,
+            Some(&MenuOption::Attack) => game_state.player_state = PlayerState::ActorAttacking,
+            Some(&MenuOption::EndTurn) => end_turn(game_state),
+            None => {}
+        },
+        None => {}
     }
 }
 
 fn end_turn(game_state: &mut GameState) {
     if let Some(index) = game_state.active_actor_index {
-        let battle_menu = &game_state.actors[index].battle_menu;
         let mut new_charge_time = 80;
-        if battle_menu.option_enabled.get(&MenuOption::Move) == Some(&false) {
-            new_charge_time -= 30;
-        }
-        if battle_menu.option_enabled.get(&MenuOption::Attack) == Some(&false) {
-            new_charge_time -= 50;
+        match &game_state.menu {
+            Some(menu) => {
+                if menu.contains(&MenuOption::Move) == false {
+                    new_charge_time -= 30;
+                }
+                if menu.contains(&MenuOption::Attack) == false {
+                    new_charge_time -= 50;
+                }
+            },
+            None => {}
         }
         game_state.charge_times[index] = new_charge_time;
         game_state.active_actor_index = None;
@@ -232,7 +237,10 @@ fn move_actor(game_state: &mut GameState) {
         actor.x = cursor_x;
         actor.y = cursor_y;
 
-        actor.battle_menu.option_enabled.insert(MenuOption::Move, false);
+        match game_state.menu.as_mut() {
+            Some(menu) => menu.remove(&MenuOption::Move),
+            None => {},
+        }
         game_state.player_state = PlayerState::UnitSelected;
     }
 
@@ -272,6 +280,9 @@ fn attack(game_state: &mut GameState) {
     game_state.cursor.x = actor.x;
     game_state.cursor.y = actor.y;
 
-    actor.battle_menu.option_enabled.insert(MenuOption::Attack, false);
+    match game_state.menu.as_mut() {
+        Some(menu) => menu.remove(&MenuOption::Attack),
+        None => {},
+    }
     game_state.player_state = PlayerState::UnitSelected;
 }

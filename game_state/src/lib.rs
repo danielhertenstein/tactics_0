@@ -1,16 +1,14 @@
-use std::collections::HashMap;
-
 pub struct Actor {
     pub x: i32,
     pub y: i32,
     pub name: String,
     pub selected: bool,
-    pub selected_menu: Menu,
     pub move_range: i32,
     pub attack_range: i32,
     pub speed: i32,
     pub player_controlled: bool,
-    pub battle_menu: ActorBattleMenu,
+    pub can_move: bool,
+    pub can_act: bool,
 }
 
 #[derive(Clone)]
@@ -24,24 +22,6 @@ impl Tile {
         Tile {
             terrain: String::from("Grass"),
             selected: false,
-        }
-    }
-}
-
-pub struct ActorBattleMenu {
-    pub menu: Menu,
-    pub option_enabled: HashMap<MenuOption, bool>,
-}
-
-impl ActorBattleMenu {
-    pub fn new() -> ActorBattleMenu {
-        ActorBattleMenu {
-            menu: vec![MenuOption::Move, MenuOption::Attack, MenuOption::EndTurn],
-            option_enabled: [
-                (MenuOption::Move, true),
-                (MenuOption::Attack, true),
-                (MenuOption::EndTurn, true),
-            ].iter().cloned().collect(),
         }
     }
 }
@@ -61,8 +41,6 @@ pub struct Cursor {
     pub y: i32,
 }
 
-type Menu = Vec<MenuOption>;
-
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub enum MenuOption {
     Move,
@@ -80,13 +58,58 @@ impl std::fmt::Display for MenuOption {
     }
 }
 
+#[derive(Clone)]
+pub struct Menu {
+    pub options: Vec<MenuOption>,
+    pub selected_index: usize,
+}
+
+impl Menu {
+    pub fn move_up(&mut self) {
+        if self.selected_index > 0 {
+            self.selected_index -= 1;
+        }
+    }
+
+    pub fn move_down(&mut self) {
+        println!("Current selected index: {}", self.selected_index);
+        println!("Current length {}", self.options.len());
+        if self.selected_index < self.options.len() - 1 {
+            self.selected_index += 1;
+        }
+        println!("New selected index: {}", self.selected_index);
+    }
+
+    pub fn select(&mut self) -> Option<&MenuOption> {
+        if self.options.len() == 0 {
+            return None
+        }
+        let option_to_return = Some(&self.options[self.selected_index]);
+        self.selected_index = 0;
+
+        option_to_return
+    }
+
+    pub fn remove(&mut self, option: &MenuOption) {
+        let pos = self.options
+            .iter()
+            .position(|x| x == option)
+            .expect("Option does not exist in menu.");
+        self.options.remove(pos);
+        println!("New length {}", self.options.len());
+    }
+
+    pub fn contains(&self, option: &MenuOption) -> bool {
+        self.options.contains(option)
+    }
+}
+
 pub struct GameState {
     pub actors: Vec<Actor>,
     pub map: Map,
     pub player_state: PlayerState,
     pub cursor: Cursor,
-    pub current_menu: Option<Menu>,
-    pub current_menu_option: Option<usize>,
+    pub menu: Option<Menu>,
     // TODO: Switch to numeric array
     pub charge_times: Vec<i32>,
     pub active_actor_index: Option<usize>,
@@ -100,31 +123,30 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 y: 0,
                 name: String::from("Percy"),
                 selected: false,
-                selected_menu: vec![MenuOption::Move, MenuOption::Attack, MenuOption::EndTurn],
                 move_range: 4,
                 attack_range: 1,
                 speed: 7,
                 player_controlled: true,
-                battle_menu: ActorBattleMenu::new(),
+                can_move: true,
+                can_act: true,
             },
             Actor {
                 x: 3,
                 y: 1,
                 name: String::from("Bad Guy"),
                 selected: false,
-                selected_menu: vec![MenuOption::Move, MenuOption::Attack, MenuOption::EndTurn],
                 move_range: 3,
                 attack_range: 1,
                 speed: 4,
                 player_controlled: false,
-                battle_menu: ActorBattleMenu::new(),
+                can_move: true,
+                can_act: true,
             },
         ],
         map: vec![vec![Tile::new(); map_height as usize]; map_width as usize],
         player_state: PlayerState::MovingCursor,
         cursor: Cursor { x: 0, y: 0 },
-        current_menu: None,
-        current_menu_option: None,
+        menu: None,
         charge_times: vec![0, 0],
         active_actor_index: None,
     }

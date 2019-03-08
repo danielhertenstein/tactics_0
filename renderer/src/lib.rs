@@ -174,11 +174,9 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
 
                 show_unit_info(renderer, game_state, actor);
 
-                if let Some(menu) = &game_state.current_menu {
-                    for (i, option) in menu.iter().enumerate() {
-                        // TODO: This unwrap feels bad. I know there should be a current menu option
-                        // if the current menu is not None, but I may mess up.
-                        if game_state.current_menu_option.unwrap() == i {
+                if let Some(menu) = &game_state.menu {
+                    for (i, option) in menu.options.iter().enumerate() {
+                        if menu.selected_index == i {
                             renderer.panel.set_char(
                                 panel_width / 2,
                                 i as i32 + 1,
