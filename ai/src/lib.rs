@@ -6,7 +6,6 @@ use game_state::GameState;
 
 pub fn ai_control_system(game_state: &mut GameState) {
     if let Some(index) = game_state.active_actor_index {
-        let actor = &mut game_state.actors[index];
         // Move ai controlled characters one random tile for now
         let mut rng = thread_rng();
         let direction: u32 = rng.gen_range(0, 4);
@@ -27,13 +26,19 @@ pub fn ai_control_system(game_state: &mut GameState) {
             },
             _ => unreachable!()
         }
+        let new_x = game_state.actors[index].x + dx;
+        let new_y = game_state.actors[index].y + dy;
+
+        let other_actor_under_cursor = game_state.actors
+            .iter()
+            .find(|actor| actor.x == new_x && actor.y == new_y)
+            .is_some();
+
         let map_width = game_state.map.len() as i32;
         let map_height = game_state.map[0].len() as i32;
-
-        let new_x = actor.x + dx;
-        let new_y = actor.y + dy;
-
-        if !(new_x < 0 || new_y < 0 || new_x == map_width || new_y == map_height) {
+        if !(new_x < 0 || new_y < 0 || new_x == map_width || new_y == map_height)
+            && other_actor_under_cursor == false {
+            let actor = &mut game_state.actors[index];
             actor.x = new_x;
             actor.y = new_y;
         }

@@ -115,8 +115,8 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
     GameState {
         actors: vec![
             Actor {
-                x: 3,
-                y: 0,
+                x: 5,
+                y: 5,
                 name: String::from("Percy"),
                 selected: false,
                 move_range: 4,
@@ -127,13 +127,13 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 can_act: true,
             },
             Actor {
-                x: 3,
-                y: 1,
+                x: 5,
+                y: 6,
                 name: String::from("Bad Guy"),
                 selected: false,
                 move_range: 3,
                 attack_range: 1,
-                speed: 4,
+                speed: 6,
                 player_controlled: false,
                 can_move: true,
                 can_act: true,

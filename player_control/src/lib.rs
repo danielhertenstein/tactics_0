@@ -33,7 +33,6 @@ pub fn clock_tick_system(game_state: &mut GameState) {
         None => {
             for i in 0..game_state.charge_times.len() {
                 game_state.charge_times[i] += game_state.actors[i].speed;
-                println!("{}: {}", game_state.actors[i].name, game_state.charge_times[i]);
             }
 
         },
