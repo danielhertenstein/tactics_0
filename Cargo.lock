@@ -27,6 +27,13 @@ version = "1.0.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "clock_tick"
+version = "0.1.0"
+dependencies = [
+ "game_state 0.1.0",
+]
+
+[[package]]
 name = "cloudabi"
 version = "0.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -190,6 +197,7 @@ name = "tactics_0"
 version = "0.1.0"
 dependencies = [
  "ai 0.1.0",
+ "clock_tick 0.1.0",
  "game_state 0.1.0",
  "input_handler 0.1.0",
  "player_control 0.1.0",

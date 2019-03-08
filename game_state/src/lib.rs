@@ -30,6 +30,7 @@ type Map = Vec<Vec<Tile>>;
 
 #[derive(PartialEq)]
 pub enum PlayerState {
+    TurnReady,
     MovingCursor,
     UnitSelected,
     MovingActor,

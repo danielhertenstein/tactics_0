@@ -7,4 +7,5 @@ members = [
     "input_handler",
     "player_control",
     "ai",
+    "clock_tick",
 ]
