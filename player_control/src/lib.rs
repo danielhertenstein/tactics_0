@@ -57,6 +57,7 @@ fn select_tile(game_state: &mut GameState) {
     if let Some(actor) = actor {
         actor.selected = true;
         if actor.player_controlled {
+            // TODO: This creates a new menu every selection, allowing a unit to move multiple times
             game_state.menu = Some(create_battle_menu(actor));
         }
     } else {
