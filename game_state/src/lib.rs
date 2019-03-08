@@ -72,12 +72,9 @@ impl Menu {
     }
 
     pub fn move_down(&mut self) {
-        println!("Current selected index: {}", self.selected_index);
-        println!("Current length {}", self.options.len());
         if self.selected_index < self.options.len() - 1 {
             self.selected_index += 1;
         }
-        println!("New selected index: {}", self.selected_index);
     }
 
     pub fn select(&mut self) -> Option<&MenuOption> {
@@ -96,7 +93,6 @@ impl Menu {
             .position(|x| x == option)
             .expect("Option does not exist in menu.");
         self.options.remove(pos);
-        println!("New length {}", self.options.len());
     }
 
     pub fn contains(&self, option: &MenuOption) -> bool {
