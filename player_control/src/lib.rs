@@ -272,7 +272,7 @@ fn attack(game_state: &mut GameState) {
     println!("You swing wildly at the air.");
 
     let actor = game_state.actors
-        .iter_mut()
+        .iter()
         .find(|actor| actor.selected)
         .unwrap();
 
