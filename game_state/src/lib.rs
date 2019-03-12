@@ -101,6 +101,20 @@ impl Menu {
     }
 }
 
+pub struct Turn {
+    pub moved: bool,
+    pub acted: bool,
+}
+
+impl Turn {
+    pub fn new() -> Turn {
+        Turn {
+            moved: false,
+            acted: false,
+        }
+    }
+}
+
 pub struct GameState {
     pub actors: Vec<Actor>,
     pub map: Map,
@@ -110,6 +124,7 @@ pub struct GameState {
     // TODO: Switch to numeric array
     pub charge_times: Vec<i32>,
     pub active_actor_index: Option<usize>,
+    pub turn: Option<Turn>,
 }
 
 pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
@@ -158,5 +173,6 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
         menu: None,
         charge_times: vec![0, 0, 0],
         active_actor_index: None,
+        turn: None,
     }
 }

@@ -2,7 +2,7 @@ extern crate tcod;
 
 use tcod::input::{Key, KeyCode};
 
-use game_state::{GameState, PlayerState, MenuOption, Menu, Actor};
+use game_state::{GameState, PlayerState, MenuOption, Menu, Actor, Turn};
 
 pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
     match game_state.player_state {
@@ -15,6 +15,7 @@ pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
 }
 
 fn handle_start_of_turn(game_state: &mut GameState) {
+    game_state.turn = Some(Turn::new());
     select_tile(game_state);
 }
 
@@ -58,8 +59,8 @@ fn select_tile(game_state: &mut GameState) {
     if let Some((index, actor)) = actor {
         actor.selected = true;
         if actor.player_controlled && index == game_state.active_actor_index.unwrap() {
-            // TODO: This creates a new menu every selection, allowing a unit to move multiple times
-            game_state.menu = Some(create_battle_menu(actor));
+            // TODO: I don't like this unwrap
+            game_state.menu = Some(create_battle_menu(actor, game_state.turn.as_ref().unwrap()));
         }
     } else {
         let tile = &mut game_state.map[game_state.cursor.x as usize][game_state.cursor.y as usize];
@@ -69,12 +70,12 @@ fn select_tile(game_state: &mut GameState) {
     game_state.player_state = PlayerState::UnitSelected;
 }
 
-fn create_battle_menu(actor: &Actor) -> Menu {
+fn create_battle_menu(actor: &Actor, turn: &Turn) -> Menu {
     let mut options = Vec::new();
-    if actor.can_move {
+    if actor.can_move && !turn.moved {
         options.push(MenuOption::Move);
     }
-    if actor.can_act {
+    if actor.can_act && !turn.acted {
         options.push(MenuOption::Attack);
     }
     options.push(MenuOption::EndTurn);
@@ -171,6 +172,7 @@ fn end_turn(game_state: &mut GameState) {
         }
         game_state.charge_times[index] = new_charge_time;
         game_state.active_actor_index = None;
+        game_state.turn = None;
         game_state.player_state = PlayerState::MovingCursor;
     }
 }
@@ -210,6 +212,10 @@ fn move_actor(game_state: &mut GameState) {
 
         match game_state.menu.as_mut() {
             Some(menu) => menu.remove(&MenuOption::Move),
+            None => {},
+        }
+        match game_state.turn.as_mut() {
+            Some(turn) => turn.moved = true,
             None => {},
         }
         game_state.player_state = PlayerState::UnitSelected;
@@ -253,6 +259,10 @@ fn attack(game_state: &mut GameState) {
 
     match game_state.menu.as_mut() {
         Some(menu) => menu.remove(&MenuOption::Attack),
+        None => {},
+    }
+    match game_state.turn.as_mut() {
+        Some(turn) => turn.acted = true,
         None => {},
     }
     game_state.player_state = PlayerState::UnitSelected;
