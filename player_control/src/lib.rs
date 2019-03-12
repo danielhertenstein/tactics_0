@@ -52,11 +52,12 @@ fn select_tile(game_state: &mut GameState) {
 
     let actor = game_state.actors
         .iter_mut()
-        .find(|actor| actor.x == cursor_x && actor.y == cursor_y);
+        .enumerate()
+        .find(|(_index, actor)| actor.x == cursor_x && actor.y == cursor_y);
 
-    if let Some(actor) = actor {
+    if let Some((index, actor)) = actor {
         actor.selected = true;
-        if actor.player_controlled {
+        if actor.player_controlled && index == game_state.active_actor_index.unwrap() {
             // TODO: This creates a new menu every selection, allowing a unit to move multiple times
             game_state.menu = Some(create_battle_menu(actor));
         }
