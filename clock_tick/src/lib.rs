@@ -19,10 +19,11 @@ pub fn clock_tick_system(game_state: &mut GameState) {
         Some(index) => {
             game_state.active_actor_index = Some(index);
             let actor = &game_state.actors[index];
+            let actor_position = &game_state.positions[index];
             game_state.charge_times[index] = 100;
             if actor.player_controlled {
-                game_state.cursor.x = actor.x;
-                game_state.cursor.y = actor.y;
+                game_state.cursor.x = actor_position.x;
+                game_state.cursor.y = actor_position.y;
                 game_state.player_state = PlayerState::TurnReady;
             }
         },

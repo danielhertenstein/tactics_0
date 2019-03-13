@@ -1,6 +1,4 @@
 pub struct Actor {
-    pub x: i32,
-    pub y: i32,
     pub name: String,
     pub move_range: i32,
     pub attack_range: i32,
@@ -8,6 +6,12 @@ pub struct Actor {
     pub player_controlled: bool,
     pub can_move: bool,
     pub can_act: bool,
+}
+
+#[derive(Eq, PartialEq)]
+pub struct Position {
+    pub x: i32,
+    pub y: i32,
 }
 
 #[derive(Clone)]
@@ -32,11 +36,6 @@ pub enum PlayerState {
     UnitSelected,
     MovingActor,
     ActorAttacking,
-}
-
-pub struct Cursor {
-    pub x: i32,
-    pub y: i32,
 }
 
 #[derive(Clone, Eq, PartialEq, Hash)]
@@ -114,9 +113,10 @@ impl Turn {
 
 pub struct GameState {
     pub actors: Vec<Actor>,
+    pub positions: Vec<Position>,
     pub map: Map,
     pub player_state: PlayerState,
-    pub cursor: Cursor,
+    pub cursor: Position,
     pub menu: Option<Menu>,
     // TODO: Switch to numeric array
     pub charge_times: Vec<i32>,
@@ -128,8 +128,6 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
     GameState {
         actors: vec![
             Actor {
-                x: 5,
-                y: 5,
                 name: String::from("Percy"),
                 move_range: 4,
                 attack_range: 1,
@@ -139,8 +137,6 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 can_act: true,
             },
             Actor {
-                x: 5,
-                y: 6,
                 name: String::from("Bad Guy"),
                 move_range: 3,
                 attack_range: 1,
@@ -150,8 +146,6 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 can_act: true,
             },
             Actor {
-                x: 8,
-                y: 5,
                 name: String::from("Pansy"),
                 move_range: 4,
                 attack_range: 1,
@@ -161,9 +155,14 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 can_act: true,
             },
         ],
+        positions: vec![
+            Position { x: 5, y: 5 },
+            Position { x: 5, y: 6 },
+            Position { x: 8, y: 5 },
+        ],
         map: vec![vec![Tile::new(); map_height as usize]; map_width as usize],
         player_state: PlayerState::MovingCursor,
-        cursor: Cursor { x: 0, y: 0 },
+        cursor: Position { x: 0, y: 0 },
         menu: None,
         charge_times: vec![0, 0, 0],
         active_actor_index: None,

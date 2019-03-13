@@ -5,7 +5,6 @@ use tcod::colors;
 use tcod::console::*;
 
 use game_state::{GameState, PlayerState};
-use game_state::Actor;
 
 const LIMIT_FPS: i32 = 60;
 
@@ -56,15 +55,17 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
         }
     }
 
-    for actor in &game_state.actors {
+    for (actor, position) in game_state.actors
+        .iter()
+        .zip(game_state.positions.iter()) {
         let color = match actor.player_controlled {
             true => colors::BLUE,
             false => colors::RED,
         };
         renderer.map.set_default_foreground(color);
         renderer.map.put_char(
-            actor.x,
-            actor.y,
+            position.x,
+            position.y,
             'A',
             BackgroundFlag::None
         );
@@ -72,7 +73,9 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
 
     match &game_state.player_state {
         PlayerState::MovingActor => {
-            let actor = &game_state.actors[game_state.active_actor_index.unwrap()];
+            let active_index = game_state.active_actor_index.unwrap();
+            let actor = &game_state.actors[active_index];
+            let actor_position = &game_state.positions[active_index];
 
             let color = match actor.player_controlled {
                 true => colors::LIGHT_BLUE,
@@ -81,19 +84,19 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
 
             for x in -actor.move_range..=actor.move_range {
                 for y in -actor.move_range..=actor.move_range {
-                    let new_x = actor.x + x;
-                    let new_y = actor.y + y;
+                    let new_x = actor_position.x + x;
+                    let new_y = actor_position.y + y;
 
-                    let active_index = game_state.active_actor_index.as_ref().unwrap();
-                    let other_actor_on_tile = game_state.actors
+                    let other_actor_under_cursor = game_state.positions
                         .iter()
-                        .enumerate()
-                        .find(|(index, actor)| {
-                            actor.x == new_x && actor.y == new_y && index != active_index
-                        })
-                        .is_some();
+                        .position(|position| position.x == new_x && position.y == new_y);
 
-                    if x.abs() + y.abs() > actor.move_range || other_actor_on_tile {
+                    match other_actor_under_cursor {
+                        Some(index) if index != active_index => continue,
+                        _ => {}
+                    }
+
+                    if x.abs() + y.abs() > actor.move_range {
                         continue
                     }
 
@@ -111,7 +114,9 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
             }
         },
         PlayerState::ActorAttacking => {
-            let actor = &game_state.actors[game_state.active_actor_index.unwrap()];
+            let active_index = game_state.active_actor_index.unwrap();
+            let actor = &game_state.actors[active_index];
+            let actor_position = &game_state.positions[active_index];
 
             for x in -actor.attack_range..=actor.attack_range {
                 for y in -actor.attack_range..=actor.attack_range {
@@ -119,8 +124,8 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
                         continue
                     }
 
-                    let new_x = actor.x + x;
-                    let new_y = actor.y + y;
+                    let new_x = actor_position.x + x;
+                    let new_y = actor_position.y + y;
 
                     if new_x > map_width || new_x < 0 || new_y > map_width || new_y < 0 {
                         continue
@@ -168,10 +173,10 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
             let cursor_x = game_state.cursor.x;
             let cursor_y = game_state.cursor.y;
 
-            match game_state.actors
+            match game_state.positions
                 .iter()
-                .find(|actor| actor.x == cursor_x && actor.y == cursor_y) {
-                Some(actor) => show_unit_info(renderer, game_state, actor),
+                .position(|position| position == &game_state.cursor) {
+                Some(index) => show_unit_info(renderer, game_state, index),
                 None => {
                     let tile =  &game_state.map[cursor_x as usize][cursor_y as usize];
                     renderer.panel.print_ex(
@@ -265,34 +270,28 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
     );
 }
 
-fn show_unit_info(renderer: &mut Renderer, game_state: &GameState, actor: &Actor) {
-    // TODO: Matching on name is weak
-    let agent_index = game_state.actors
-        .iter()
-        .position(|a| a.name == actor.name )
-        .expect("Could not match unit name to an Actor in game_state.actors");
-
+fn show_unit_info(renderer: &mut Renderer, game_state: &GameState, index: usize) {
     renderer.panel.print_ex(
         1,
         1,
         BackgroundFlag::None,
         TextAlignment::Left,
-        format!("{}", actor.name),
+        format!("{}", game_state.actors[index].name),
     );
     renderer.panel.print_ex(
         1,
         2,
         BackgroundFlag::None,
         TextAlignment::Left,
-        format!("CT: {}/100", game_state.charge_times[agent_index]),
+        format!("CT: {}/100", game_state.charge_times[index]),
     );
 }
 
 fn clear_actors(renderer: &mut Renderer, game_state: &GameState) {
-    for actor in &game_state.actors {
+    for actor_position in &game_state.positions {
         renderer.map.put_char(
-            actor.x,
-            actor.y,
+            actor_position.x,
+            actor_position.y,
             ' ',
             BackgroundFlag::None);
     }

@@ -26,7 +26,7 @@ fn handle_moving_cursor(input_state: Key, game_state: &mut GameState) {
         Key { code: KeyCode::Left, .. } => move_cursor(-1, 0, game_state),
         Key { code: KeyCode::Right, .. } => move_cursor(1, 0, game_state),
         Key { code: KeyCode::Enter, .. } => select_tile(game_state),
-        // TODO: Might want to bring up menu if cursor already on active unit
+        // TODO: Might want to bring up game menu if cursor already on active unit
         Key { code: KeyCode::Escape, .. } => return_to_active_unit(game_state),
         _ => {},
     }
@@ -48,17 +48,16 @@ fn move_cursor(dx: i32, dy: i32, game_state: &mut GameState) {
 }
 
 fn select_tile(game_state: &mut GameState) {
-    let cursor_x = game_state.cursor.x;
-    let cursor_y = game_state.cursor.y;
-
-    match game_state.actors
-        .iter_mut()
-        .enumerate()
-        .find(|(_index, actor)| actor.x == cursor_x && actor.y == cursor_y) {
-        Some((index, actor)) => {
-            if actor.player_controlled && index == game_state.active_actor_index.unwrap() {
-                // TODO: I don't like this unwrap
-                game_state.menu = Some(create_battle_menu(actor, game_state.turn.as_ref().unwrap()));
+    match game_state.positions
+        .iter()
+        .position(|position| position == &game_state.cursor) {
+        Some(index) => {
+            if index == game_state.active_actor_index.unwrap() {
+                let actor = &game_state.actors[index];
+                if actor.player_controlled {
+                    // TODO: I don't like this unwrap
+                    game_state.menu = Some(create_battle_menu(actor, game_state.turn.as_ref().unwrap()));
+                }
             }
         },
         None => {}
@@ -88,8 +87,9 @@ fn return_to_active_unit(game_state: &mut GameState) {
         Some(index) => {
             let actor = &game_state.actors[index];
             if actor.player_controlled {
-                game_state.cursor.x = actor.x;
-                game_state.cursor.y = actor.y;
+                let actor_position = &game_state.positions[index];
+                game_state.cursor.x = actor_position.x;
+                game_state.cursor.y = actor_position.y;
                 select_tile(game_state);
             }
         },
@@ -175,26 +175,25 @@ fn move_actor(game_state: &mut GameState) {
     let cursor_x = game_state.cursor.x;
     let cursor_y = game_state.cursor.y;
 
-    let active_index = game_state.active_actor_index.as_ref().unwrap();
-    let other_actor_under_cursor = game_state.actors
+    let other_actor_under_cursor = game_state.positions
         .iter()
-        .enumerate()
-        .find(|(index, actor)| {
-            actor.x == cursor_x && actor.y == cursor_y && index != active_index
-        })
-        .is_some();
+        .position(|position| position == &game_state.cursor);
 
-    if other_actor_under_cursor {
-        return
+    let active_index = game_state.active_actor_index.unwrap();
+
+    match other_actor_under_cursor {
+        Some(index) if index == active_index => return,
+        _ => {}
     }
 
-    let actor = &mut game_state.actors[game_state.active_actor_index.unwrap()];
+    let actor_position = &mut game_state.positions[active_index];
+    let cursor_distance_from_actor = (actor_position.x - cursor_x).abs()
+        + (actor_position.y - cursor_y).abs();
 
-    let cursor_distance_from_actor = (actor.x - cursor_x).abs() + (actor.y - cursor_y).abs();
-
+    let actor = &game_state.actors[active_index];
     if cursor_distance_from_actor <= actor.move_range {
-        actor.x = cursor_x;
-        actor.y = cursor_y;
+        actor_position.x = cursor_x;
+        actor_position.y = cursor_y;
 
         match game_state.menu.as_mut() {
             Some(menu) => menu.remove(&MenuOption::Move),
@@ -210,9 +209,9 @@ fn move_actor(game_state: &mut GameState) {
 }
 
 fn cancel_actor_action(game_state: &mut GameState) {
-    let actor = &game_state.actors[game_state.active_actor_index.unwrap()];
-    game_state.cursor.x = actor.x;
-    game_state.cursor.y = actor.y;
+    let actor_position = &game_state.positions[game_state.active_actor_index.unwrap()];
+    game_state.cursor.x = actor_position.x;
+    game_state.cursor.y = actor_position.y;
 
     game_state.player_state = PlayerState::UnitSelected;
 }
@@ -230,18 +229,20 @@ fn handle_actor_attacking(input_state: Key, game_state: &mut GameState) {
 }
 
 fn attack(game_state: &mut GameState) {
-    let actor = &game_state.actors[game_state.active_actor_index.unwrap()];
+    let active_index = game_state.active_actor_index.unwrap();
+    let actor = &game_state.actors[active_index];
+    let actor_position = &game_state.positions[active_index];
 
     let cursor_x = game_state.cursor.x;
     let cursor_y = game_state.cursor.y;
-    let cursor_distance_from_actor = (actor.x - cursor_x).abs() + (actor.y - cursor_y).abs();
+    let cursor_distance_from_actor = (actor_position.x - cursor_x).abs() + (actor_position.y - cursor_y).abs();
 
     if cursor_distance_from_actor > actor.attack_range {
         return
     }
 
-    game_state.cursor.x = actor.x;
-    game_state.cursor.y = actor.y;
+    game_state.cursor.x = actor_position.x;
+    game_state.cursor.y = actor_position.y;
 
     match game_state.menu.as_mut() {
         Some(menu) => menu.remove(&MenuOption::Attack),
