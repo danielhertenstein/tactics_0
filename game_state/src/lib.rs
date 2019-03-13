@@ -2,7 +2,6 @@ pub struct Actor {
     pub x: i32,
     pub y: i32,
     pub name: String,
-    pub selected: bool,
     pub move_range: i32,
     pub attack_range: i32,
     pub speed: i32,
@@ -14,14 +13,12 @@ pub struct Actor {
 #[derive(Clone)]
 pub struct Tile {
     pub terrain: String,
-    pub selected: bool,
 }
 
 impl Tile {
     pub fn new() -> Tile {
         Tile {
             terrain: String::from("Grass"),
-            selected: false,
         }
     }
 }
@@ -32,7 +29,7 @@ type Map = Vec<Vec<Tile>>;
 pub enum PlayerState {
     TurnReady,
     MovingCursor,
-    TileSelected,
+    UnitSelected,
     MovingActor,
     ActorAttacking,
 }
@@ -134,7 +131,6 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 x: 5,
                 y: 5,
                 name: String::from("Percy"),
-                selected: false,
                 move_range: 4,
                 attack_range: 1,
                 speed: 7,
@@ -146,7 +142,6 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 x: 5,
                 y: 6,
                 name: String::from("Bad Guy"),
-                selected: false,
                 move_range: 3,
                 attack_range: 1,
                 speed: 6,
@@ -158,7 +153,6 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 x: 8,
                 y: 5,
                 name: String::from("Pansy"),
-                selected: false,
                 move_range: 4,
                 attack_range: 1,
                 speed: 1,

@@ -15,7 +15,6 @@ pub struct Renderer {
     panel: Offscreen,
 }
 
-
 pub fn initialize_rendering_engine(screen_height: i32, screen_width: i32, map_height: i32,
                                    map_width: i32, panel_height: i32,
                                    panel_width: i32) -> Renderer {
@@ -85,10 +84,12 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
                     let new_x = actor.x + x;
                     let new_y = actor.y + y;
 
+                    let active_index = game_state.active_actor_index.as_ref().unwrap();
                     let other_actor_on_tile = game_state.actors
                         .iter()
-                        .find(|actor| {
-                            actor.x == new_x && actor.y == new_y && !actor.selected
+                        .enumerate()
+                        .find(|(index, actor)| {
+                            actor.x == new_x && actor.y == new_y && index != active_index
                         })
                         .is_some();
 
@@ -163,50 +164,52 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
     let panel_height = renderer.panel.height();
 
     match &game_state.player_state {
-        PlayerState::TileSelected => {
-            if let Some(actor) = game_state.actors
+        PlayerState::MovingCursor => {
+            let cursor_x = game_state.cursor.x;
+            let cursor_y = game_state.cursor.y;
+
+            match game_state.actors
                 .iter()
-                .find(|actor| actor.selected) {
-
-                show_unit_info(renderer, game_state, actor);
-
-                if let Some(menu) = &game_state.menu {
-                    for (i, option) in menu.options.iter().enumerate() {
-                        if menu.selected_index == i {
-                            renderer.panel.set_char(
-                                panel_width / 2,
-                                i as i32 + 1,
-                                chars::ARROW_E,
-                            );
-                            renderer.panel.print_ex(
-                                panel_width / 2 + 1,
-                                i as i32 + 1,
-                                BackgroundFlag::None,
-                                TextAlignment::Left,
-                                format!(" {}", option),
-                            );
-                        } else {
-                            renderer.panel.print_ex(
-                                panel_width / 2,
-                                i as i32 + 1,
-                                BackgroundFlag::None,
-                                TextAlignment::Left,
-                                format!("  {}", option),
-                            );
-                        }
+                .find(|actor| actor.x == cursor_x && actor.y == cursor_y) {
+                Some(actor) => show_unit_info(renderer, game_state, actor),
+                None => {
+                    let tile =  &game_state.map[cursor_x as usize][cursor_y as usize];
+                    renderer.panel.print_ex(
+                        1,
+                        1,
+                        BackgroundFlag::None,
+                        TextAlignment::Left,
+                        format!("{}", tile.terrain)
+                    );
+                }
+            }
+        },
+        PlayerState::UnitSelected => {
+            if let Some(menu) = &game_state.menu {
+                for (i, option) in menu.options.iter().enumerate() {
+                    if menu.selected_index == i {
+                        renderer.panel.set_char(
+                            panel_width / 2,
+                            i as i32 + 1,
+                            chars::ARROW_E,
+                        );
+                        renderer.panel.print_ex(
+                            panel_width / 2 + 1,
+                            i as i32 + 1,
+                            BackgroundFlag::None,
+                            TextAlignment::Left,
+                            format!(" {}", option),
+                        );
+                    } else {
+                        renderer.panel.print_ex(
+                            panel_width / 2,
+                            i as i32 + 1,
+                            BackgroundFlag::None,
+                            TextAlignment::Left,
+                            format!("  {}", option),
+                        );
                     }
                 }
-            } else if let Some(tile) = game_state.map
-                .iter()
-                .flatten()
-                .find(|tile| tile.selected) {
-                renderer.panel.print_ex(
-                    1,
-                    1,
-                    BackgroundFlag::None,
-                    TextAlignment::Left,
-                    format!("{}", tile.terrain)
-                );
             }
         },
         PlayerState::MovingActor => {

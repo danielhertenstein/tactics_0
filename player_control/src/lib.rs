@@ -8,7 +8,7 @@ pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
     match game_state.player_state {
         PlayerState::TurnReady => handle_start_of_turn(game_state),
         PlayerState::MovingCursor => handle_moving_cursor(input_state, game_state),
-        PlayerState::TileSelected => handle_tile_selected(input_state, game_state),
+        PlayerState::UnitSelected => handle_unit_selected(input_state, game_state),
         PlayerState::MovingActor => handle_moving_actor(input_state, game_state),
         PlayerState::ActorAttacking => handle_actor_attacking(input_state, game_state),
     }
@@ -51,23 +51,20 @@ fn select_tile(game_state: &mut GameState) {
     let cursor_x = game_state.cursor.x;
     let cursor_y = game_state.cursor.y;
 
-    let actor = game_state.actors
+    match game_state.actors
         .iter_mut()
         .enumerate()
-        .find(|(_index, actor)| actor.x == cursor_x && actor.y == cursor_y);
-
-    if let Some((index, actor)) = actor {
-        actor.selected = true;
-        if actor.player_controlled && index == game_state.active_actor_index.unwrap() {
-            // TODO: I don't like this unwrap
-            game_state.menu = Some(create_battle_menu(actor, game_state.turn.as_ref().unwrap()));
-        }
-    } else {
-        let tile = &mut game_state.map[cursor_x as usize][cursor_y as usize];
-        tile.selected = true;
+        .find(|(_index, actor)| actor.x == cursor_x && actor.y == cursor_y) {
+        Some((index, actor)) => {
+            if actor.player_controlled && index == game_state.active_actor_index.unwrap() {
+                // TODO: I don't like this unwrap
+                game_state.menu = Some(create_battle_menu(actor, game_state.turn.as_ref().unwrap()));
+            }
+        },
+        None => {}
     }
 
-    game_state.player_state = PlayerState::TileSelected;
+    game_state.player_state = PlayerState::UnitSelected;
 }
 
 fn create_battle_menu(actor: &Actor, turn: &Turn) -> Menu {
@@ -100,9 +97,9 @@ fn return_to_active_unit(game_state: &mut GameState) {
     }
 }
 
-fn handle_tile_selected(input_state: Key, game_state: &mut GameState) {
+fn handle_unit_selected(input_state: Key, game_state: &mut GameState) {
     match input_state {
-        Key { code: KeyCode::Escape, .. } => deselect_tile(game_state),
+        Key { code: KeyCode::Escape, .. } => deselect_unit(game_state),
         Key { code: KeyCode::Up, .. } => menu_option_up(game_state),
         Key { code: KeyCode::Down, .. } => menu_option_down(game_state),
         Key { code: KeyCode::Enter, .. } => menu_option_select(game_state),
@@ -110,22 +107,8 @@ fn handle_tile_selected(input_state: Key, game_state: &mut GameState) {
     }
 }
 
-fn deselect_tile(game_state: &mut GameState) {
-    let cursor_x = game_state.cursor.x;
-    let cursor_y = game_state.cursor.y;
-
-    let actor = game_state.actors
-        .iter_mut()
-        .find(|actor| actor.x == cursor_x && actor.y == cursor_y);
-
-    if let Some(actor) = actor {
-        actor.selected = false;
-        game_state.menu = None;
-    } else {
-        let tile = &mut game_state.map[cursor_x as usize][cursor_y as usize];
-        tile.selected = false;
-    }
-
+fn deselect_unit(game_state: &mut GameState) {
+    game_state.menu = None;
     game_state.player_state = PlayerState::MovingCursor;
 }
 
@@ -172,8 +155,7 @@ fn end_turn(game_state: &mut GameState) {
         game_state.charge_times[index] = new_charge_time;
         game_state.active_actor_index = None;
         game_state.turn = None;
-        deselect_tile(game_state);
-        game_state.player_state = PlayerState::MovingCursor;
+        deselect_unit(game_state);
     }
 }
 
@@ -193,10 +175,12 @@ fn move_actor(game_state: &mut GameState) {
     let cursor_x = game_state.cursor.x;
     let cursor_y = game_state.cursor.y;
 
+    let active_index = game_state.active_actor_index.as_ref().unwrap();
     let other_actor_under_cursor = game_state.actors
         .iter()
-        .find(|actor| {
-            actor.x == cursor_x && actor.y == cursor_y && !actor.selected
+        .enumerate()
+        .find(|(index, actor)| {
+            actor.x == cursor_x && actor.y == cursor_y && index != active_index
         })
         .is_some();
 
@@ -220,7 +204,7 @@ fn move_actor(game_state: &mut GameState) {
             Some(turn) => turn.moved = true,
             None => {},
         }
-        game_state.player_state = PlayerState::TileSelected;
+        game_state.player_state = PlayerState::UnitSelected;
     }
 
 }
@@ -230,7 +214,7 @@ fn cancel_actor_action(game_state: &mut GameState) {
     game_state.cursor.x = actor.x;
     game_state.cursor.y = actor.y;
 
-    game_state.player_state = PlayerState::TileSelected;
+    game_state.player_state = PlayerState::UnitSelected;
 }
 
 fn handle_actor_attacking(input_state: Key, game_state: &mut GameState) {
@@ -269,5 +253,5 @@ fn attack(game_state: &mut GameState) {
     }
 
     println!("You swing wildly at the air.");
-    game_state.player_state = PlayerState::TileSelected;
+    game_state.player_state = PlayerState::UnitSelected;
 }
