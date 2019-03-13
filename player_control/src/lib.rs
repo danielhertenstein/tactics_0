@@ -63,7 +63,7 @@ fn select_tile(game_state: &mut GameState) {
             game_state.menu = Some(create_battle_menu(actor, game_state.turn.as_ref().unwrap()));
         }
     } else {
-        let tile = &mut game_state.map[game_state.cursor.x as usize][game_state.cursor.y as usize];
+        let tile = &mut game_state.map[cursor_x as usize][cursor_y as usize];
         tile.selected = true;
     }
 
@@ -122,7 +122,7 @@ fn deselect_tile(game_state: &mut GameState) {
         actor.selected = false;
         game_state.menu = None;
     } else {
-        let tile = &mut game_state.map[game_state.cursor.x as usize][game_state.cursor.y as usize];
+        let tile = &mut game_state.map[cursor_x as usize][cursor_y as usize];
         tile.selected = false;
     }
 
@@ -144,7 +144,6 @@ fn menu_option_down(game_state: &mut GameState) {
 }
 
 fn menu_option_select(game_state: &mut GameState) {
-    // TODO: Being mutable here feels weird, but is needed for the select
     match &mut game_state.menu {
         Some(menu) => match menu.select() {
             Some(&MenuOption::Move) => game_state.player_state = PlayerState::MovingActor,
@@ -173,6 +172,7 @@ fn end_turn(game_state: &mut GameState) {
         game_state.charge_times[index] = new_charge_time;
         game_state.active_actor_index = None;
         game_state.turn = None;
+        deselect_tile(game_state);
         game_state.player_state = PlayerState::MovingCursor;
     }
 }
@@ -195,9 +195,14 @@ fn move_actor(game_state: &mut GameState) {
 
     let other_actor_under_cursor = game_state.actors
         .iter()
-        .filter(|actor| !actor.selected)
-        .find(|actor| actor.x == cursor_x && actor.y == cursor_y)
+        .find(|actor| {
+            actor.x == cursor_x && actor.y == cursor_y && !actor.selected
+        })
         .is_some();
+
+    if other_actor_under_cursor {
+        return
+    }
 
     let actor = game_state.actors
         .iter_mut()
@@ -206,7 +211,7 @@ fn move_actor(game_state: &mut GameState) {
 
     let cursor_distance_from_actor = (actor.x - cursor_x).abs() + (actor.y - cursor_y).abs();
 
-    if cursor_distance_from_actor <= actor.move_range && !other_actor_under_cursor {
+    if cursor_distance_from_actor <= actor.move_range {
         actor.x = cursor_x;
         actor.y = cursor_y;
 
