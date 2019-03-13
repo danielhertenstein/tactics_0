@@ -252,12 +252,18 @@ fn handle_actor_attacking(input_state: Key, game_state: &mut GameState) {
 }
 
 fn attack(game_state: &mut GameState) {
-    println!("You swing wildly at the air.");
-
     let actor = game_state.actors
         .iter()
         .find(|actor| actor.selected)
         .unwrap();
+
+    let cursor_x = game_state.cursor.x;
+    let cursor_y = game_state.cursor.y;
+    let cursor_distance_from_actor = (actor.x - cursor_x).abs() + (actor.y - cursor_y).abs();
+
+    if cursor_distance_from_actor > actor.attack_range {
+        return
+    }
 
     game_state.cursor.x = actor.x;
     game_state.cursor.y = actor.y;
@@ -270,5 +276,7 @@ fn attack(game_state: &mut GameState) {
         Some(turn) => turn.acted = true,
         None => {},
     }
+
+    println!("You swing wildly at the air.");
     game_state.player_state = PlayerState::UnitSelected;
 }
