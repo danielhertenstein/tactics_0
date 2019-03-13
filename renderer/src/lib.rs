@@ -163,7 +163,7 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
     let panel_height = renderer.panel.height();
 
     match &game_state.player_state {
-        PlayerState::UnitSelected => {
+        PlayerState::TileSelected => {
             if let Some(actor) = game_state.actors
                 .iter()
                 .find(|actor| actor.selected) {

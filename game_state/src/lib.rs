@@ -32,7 +32,7 @@ type Map = Vec<Vec<Tile>>;
 pub enum PlayerState {
     TurnReady,
     MovingCursor,
-    UnitSelected,
+    TileSelected,
     MovingActor,
     ActorAttacking,
 }

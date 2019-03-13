@@ -8,7 +8,7 @@ pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
     match game_state.player_state {
         PlayerState::TurnReady => handle_start_of_turn(game_state),
         PlayerState::MovingCursor => handle_moving_cursor(input_state, game_state),
-        PlayerState::UnitSelected => handle_unit_selected(input_state, game_state),
+        PlayerState::TileSelected => handle_tile_selected(input_state, game_state),
         PlayerState::MovingActor => handle_moving_actor(input_state, game_state),
         PlayerState::ActorAttacking => handle_actor_attacking(input_state, game_state),
     }
@@ -67,7 +67,7 @@ fn select_tile(game_state: &mut GameState) {
         tile.selected = true;
     }
 
-    game_state.player_state = PlayerState::UnitSelected;
+    game_state.player_state = PlayerState::TileSelected;
 }
 
 fn create_battle_menu(actor: &Actor, turn: &Turn) -> Menu {
@@ -100,7 +100,7 @@ fn return_to_active_unit(game_state: &mut GameState) {
     }
 }
 
-fn handle_unit_selected(input_state: Key, game_state: &mut GameState) {
+fn handle_tile_selected(input_state: Key, game_state: &mut GameState) {
     match input_state {
         Key { code: KeyCode::Escape, .. } => deselect_tile(game_state),
         Key { code: KeyCode::Up, .. } => menu_option_up(game_state),
@@ -220,7 +220,7 @@ fn move_actor(game_state: &mut GameState) {
             Some(turn) => turn.moved = true,
             None => {},
         }
-        game_state.player_state = PlayerState::UnitSelected;
+        game_state.player_state = PlayerState::TileSelected;
     }
 
 }
@@ -230,7 +230,7 @@ fn cancel_actor_action(game_state: &mut GameState) {
     game_state.cursor.x = actor.x;
     game_state.cursor.y = actor.y;
 
-    game_state.player_state = PlayerState::UnitSelected;
+    game_state.player_state = PlayerState::TileSelected;
 }
 
 fn handle_actor_attacking(input_state: Key, game_state: &mut GameState) {
@@ -269,5 +269,5 @@ fn attack(game_state: &mut GameState) {
     }
 
     println!("You swing wildly at the air.");
-    game_state.player_state = PlayerState::UnitSelected;
+    game_state.player_state = PlayerState::TileSelected;
 }
