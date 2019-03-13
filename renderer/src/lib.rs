@@ -73,10 +73,8 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
 
     match &game_state.player_state {
         PlayerState::MovingActor => {
-            let actor = game_state.actors
-                .iter()
-                .find(|actor| actor.selected)
-                .unwrap();
+            let actor = &game_state.actors[game_state.active_actor_index.unwrap()];
+
             let color = match actor.player_controlled {
                 true => colors::LIGHT_BLUE,
                 false => colors::LIGHT_RED,
@@ -89,8 +87,9 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
 
                     let other_actor_on_tile = game_state.actors
                         .iter()
-                        .filter(|actor| !actor.selected)
-                        .find(|actor| actor.x == new_x && actor.y == new_y)
+                        .find(|actor| {
+                            actor.x == new_x && actor.y == new_y && !actor.selected
+                        })
                         .is_some();
 
                     if x.abs() + y.abs() > actor.move_range || other_actor_on_tile {
@@ -111,10 +110,7 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
             }
         },
         PlayerState::ActorAttacking => {
-            let actor = game_state.actors
-                .iter()
-                .find(|actor| actor.selected)
-                .unwrap();
+            let actor = &game_state.actors[game_state.active_actor_index.unwrap()];
 
             for x in -actor.attack_range..=actor.attack_range {
                 for y in -actor.attack_range..=actor.attack_range {
@@ -214,10 +210,7 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
             }
         },
         PlayerState::MovingActor => {
-            let actor = game_state.actors
-                .iter()
-                .find(|actor| actor.selected)
-                .unwrap();
+            let actor = &game_state.actors[game_state.active_actor_index.unwrap()];
 
             renderer.panel.print_ex(
                 1,
@@ -236,10 +229,7 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
             );
         },
         PlayerState::ActorAttacking => {
-            let actor = game_state.actors
-                .iter()
-                .find(|actor| actor.selected)
-                .unwrap();
+            let actor = &game_state.actors[game_state.active_actor_index.unwrap()];
 
             renderer.panel.print_ex(
                 1,
@@ -273,6 +263,7 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
 }
 
 fn show_unit_info(renderer: &mut Renderer, game_state: &GameState, actor: &Actor) {
+    // TODO: Matching on name is weak
     let agent_index = game_state.actors
         .iter()
         .position(|a| a.name == actor.name )

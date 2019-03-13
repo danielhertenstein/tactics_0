@@ -204,10 +204,7 @@ fn move_actor(game_state: &mut GameState) {
         return
     }
 
-    let actor = game_state.actors
-        .iter_mut()
-        .find(|actor| actor.selected)
-        .unwrap();
+    let actor = &mut game_state.actors[game_state.active_actor_index.unwrap()];
 
     let cursor_distance_from_actor = (actor.x - cursor_x).abs() + (actor.y - cursor_y).abs();
 
@@ -229,10 +226,7 @@ fn move_actor(game_state: &mut GameState) {
 }
 
 fn cancel_actor_action(game_state: &mut GameState) {
-    let actor = game_state.actors
-        .iter()
-        .find(|actor| actor.selected)
-        .unwrap();
+    let actor = &game_state.actors[game_state.active_actor_index.unwrap()];
     game_state.cursor.x = actor.x;
     game_state.cursor.y = actor.y;
 
@@ -252,10 +246,7 @@ fn handle_actor_attacking(input_state: Key, game_state: &mut GameState) {
 }
 
 fn attack(game_state: &mut GameState) {
-    let actor = game_state.actors
-        .iter()
-        .find(|actor| actor.selected)
-        .unwrap();
+    let actor = &game_state.actors[game_state.active_actor_index.unwrap()];
 
     let cursor_x = game_state.cursor.x;
     let cursor_y = game_state.cursor.y;
