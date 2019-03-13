@@ -161,6 +161,7 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
     );
 }
 
+// TODO: Unit information still being shown while waiting for a turn
 fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
     renderer.panel.set_default_background(colors::BLACK);
     renderer.panel.clear();
@@ -190,6 +191,7 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
             }
         },
         PlayerState::UnitSelected => {
+            // TODO: Unit information still needs to be shown
             if let Some(menu) = &game_state.menu {
                 for (i, option) in menu.options.iter().enumerate() {
                     if menu.selected_index == i {
