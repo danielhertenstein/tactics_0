@@ -161,7 +161,6 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
     );
 }
 
-// TODO: Unit information still being shown while waiting for a turn
 fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
     renderer.panel.set_default_background(colors::BLACK);
     renderer.panel.clear();
@@ -171,14 +170,13 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
 
     match &game_state.player_state {
         PlayerState::MovingCursor => {
-            let cursor_x = game_state.cursor.x;
-            let cursor_y = game_state.cursor.y;
-
             match game_state.positions
                 .iter()
                 .position(|position| position == &game_state.cursor) {
-                Some(index) => show_unit_info(renderer, game_state, index),
+                Some(index) => show_actor_info(renderer, game_state, index),
                 None => {
+                    let cursor_x = game_state.cursor.x;
+                    let cursor_y = game_state.cursor.y;
                     let tile =  &game_state.map[cursor_x as usize][cursor_y as usize];
                     renderer.panel.print_ex(
                         1,
@@ -191,7 +189,13 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
             }
         },
         PlayerState::UnitSelected => {
-            // TODO: Unit information still needs to be shown
+            match game_state.positions
+                .iter()
+                .position(|position| position == &game_state.cursor) {
+                Some(index) => show_actor_info(renderer, game_state, index),
+                _ => unreachable!()
+            }
+
             if let Some(menu) = &game_state.menu {
                 for (i, option) in menu.options.iter().enumerate() {
                     if menu.selected_index == i {
@@ -272,7 +276,7 @@ fn render_panel(renderer: &mut Renderer, game_state: &GameState) {
     );
 }
 
-fn show_unit_info(renderer: &mut Renderer, game_state: &GameState, index: usize) {
+fn show_actor_info(renderer: &mut Renderer, game_state: &GameState, index: usize) {
     renderer.panel.print_ex(
         1,
         1,

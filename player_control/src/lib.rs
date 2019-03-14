@@ -6,6 +6,7 @@ use game_state::{GameState, PlayerState, MenuOption, Menu, Actor, Turn};
 
 pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
     match game_state.player_state {
+        PlayerState::WaitingForTurn => {},
         PlayerState::TurnReady => handle_start_of_turn(game_state),
         PlayerState::MovingCursor => handle_moving_cursor(input_state, game_state),
         PlayerState::UnitSelected => handle_unit_selected(input_state, game_state),
@@ -59,11 +60,10 @@ fn select_tile(game_state: &mut GameState) {
                     game_state.menu = Some(create_battle_menu(actor, game_state.turn.as_ref().unwrap()));
                 }
             }
+            game_state.player_state = PlayerState::UnitSelected;
         },
         None => {}
     }
-
-    game_state.player_state = PlayerState::UnitSelected;
 }
 
 fn create_battle_menu(actor: &Actor, turn: &Turn) -> Menu {
@@ -156,6 +156,7 @@ fn end_turn(game_state: &mut GameState) {
         game_state.active_actor_index = None;
         game_state.turn = None;
         deselect_unit(game_state);
+        game_state.player_state = PlayerState::WaitingForTurn;
     }
 }
 

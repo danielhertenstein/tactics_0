@@ -31,6 +31,7 @@ type Map = Vec<Vec<Tile>>;
 
 #[derive(PartialEq)]
 pub enum PlayerState {
+    WaitingForTurn,
     TurnReady,
     MovingCursor,
     UnitSelected,
