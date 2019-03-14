@@ -57,6 +57,13 @@ impl Tile {
 
 type Map = Vec<Vec<Tile>>;
 
+pub fn map_contains_position(map: &Map, position: &Position) -> bool {
+    let map_width = map.len() as i32;
+    let map_height = map[0].len() as i32;
+    !(position.x < 0 || position.y < 0 || position.x >= map_width || position.y >= map_height)
+
+}
+
 #[derive(PartialEq)]
 pub enum PlayerState {
     WaitingForTurn,

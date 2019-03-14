@@ -2,7 +2,7 @@ extern crate tcod;
 
 use tcod::input::{Key, KeyCode};
 
-use game_state::{GameState, PlayerState, MenuOption, Menu, Actor, Turn};
+use game_state::{GameState, PlayerState, MenuOption, Menu, Actor, Turn, map_contains_position};
 
 pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
     match game_state.player_state {
@@ -35,14 +35,9 @@ fn handle_moving_cursor(input_state: Key, game_state: &mut GameState) {
 
 fn move_cursor(dx: i32, dy: i32, game_state: &mut GameState) {
     let new_pos = &game_state.cursor + (dx, dy);
-
-    let map_width = game_state.map.len() as i32;
-    let map_height = game_state.map[0].len() as i32;
-    if new_pos.x < 0 || new_pos.y < 0 || new_pos.x >= map_width || new_pos.y >= map_height {
-        return
+    if map_contains_position(&game_state.map, &new_pos) {
+        game_state.cursor.move_to(&new_pos);
     }
-
-    game_state.cursor.move_to(&new_pos);
 }
 
 fn select_tile(game_state: &mut GameState) {
@@ -176,7 +171,7 @@ fn move_actor(game_state: &mut GameState) {
     let active_index = game_state.active_actor_index.unwrap();
 
     match other_actor_under_cursor {
-        Some(index) if index == active_index => return,
+        Some(index) if index != active_index => return,
         _ => {}
     }
 
@@ -223,7 +218,8 @@ fn attack(game_state: &mut GameState) {
     let actor = &game_state.actors[active_index];
     let actor_position = &game_state.positions[active_index];
 
-    if game_state.cursor.distance_to(actor_position) > actor.attack_range {
+    let attack_distance = game_state.cursor.distance_to(actor_position);
+    if attack_distance > actor.attack_range || attack_distance == 0 {
         return
     }
 

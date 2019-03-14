@@ -4,7 +4,7 @@ use tcod::chars;
 use tcod::colors;
 use tcod::console::*;
 
-use game_state::{GameState, PlayerState};
+use game_state::{GameState, PlayerState, map_contains_position};
 
 const LIMIT_FPS: i32 = 60;
 
@@ -84,7 +84,15 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
 
             for x in -actor.move_range..=actor.move_range {
                 for y in -actor.move_range..=actor.move_range {
+                    if x.abs() + y.abs() > actor.move_range {
+                        continue
+                    }
+
                     let new_pos = actor_position + (x, y);
+
+                    if !map_contains_position(&game_state.map, &new_pos) {
+                        continue
+                    }
 
                     let other_actor_under_cursor = game_state.positions
                         .iter()
@@ -93,14 +101,6 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
                     match other_actor_under_cursor {
                         Some(index) if index != active_index => continue,
                         _ => {}
-                    }
-
-                    if new_pos.magnitude() > actor.move_range {
-                        continue
-                    }
-
-                    if new_pos.x > map_width || new_pos.x < 0 || new_pos.y > map_height || new_pos.y < 0 {
-                        continue
                     }
 
                     renderer.map.set_char_background(
@@ -119,14 +119,13 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
 
             for x in -actor.attack_range..=actor.attack_range {
                 for y in -actor.attack_range..=actor.attack_range {
-                    let new_pos = actor_position + (x, y);
-                    let new_pos_magnitude = new_pos.magnitude();
-
-                    if new_pos_magnitude > actor.attack_range || new_pos_magnitude == 0  {
+                    if x.abs() + y.abs() > actor.attack_range || (x == 0 && y == 0)  {
                         continue
                     }
 
-                    if new_pos.x > map_width || new_pos.x < 0 || new_pos.y > map_height || new_pos.y < 0 {
+                    let new_pos = actor_position + (x, y);
+
+                    if !map_contains_position(&game_state.map, &new_pos) {
                         continue
                     }
 

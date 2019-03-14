@@ -2,11 +2,13 @@ extern crate rand;
 
 use rand::{thread_rng, Rng};
 
-use game_state::GameState;
+use game_state::{GameState, map_contains_position};
 
 pub fn ai_control_system(game_state: &mut GameState) {
     if let Some(index) = game_state.active_actor_index {
-        // Move ai controlled characters one random tile for now
+        // Move ai controlled characters one random tile for now. If the tile is blocked or is off
+        // the edge of the map, the character does not move, but their charge time is reduced as if
+        // they had moved.
         let mut rng = thread_rng();
         let direction: u32 = rng.gen_range(0, 4);
         let mut dx = 0;
@@ -28,15 +30,12 @@ pub fn ai_control_system(game_state: &mut GameState) {
         }
         let new_pos = &game_state.positions[index] + (dx, dy);
 
-        let other_actor_under_cursor = game_state.positions
+        let tile_unoccupied = game_state.positions
             .iter()
             .find(|&position| position == &new_pos)
-            .is_some();
+            .is_none();
 
-        let map_width = game_state.map.len() as i32;
-        let map_height = game_state.map[0].len() as i32;
-        if !(new_pos.x < 0 || new_pos.y < 0 || new_pos.x >= map_width || new_pos.y >= map_height)
-            && other_actor_under_cursor == false {
+        if map_contains_position(&game_state.map, &new_pos) && tile_unoccupied {
             &mut game_state.positions[index].move_to(&new_pos);
         }
 
