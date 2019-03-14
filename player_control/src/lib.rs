@@ -174,9 +174,6 @@ fn handle_moving_actor(input_state: Key, game_state: &mut GameState) {
 }
 
 fn move_actor(game_state: &mut GameState) {
-    let cursor_x = game_state.cursor.x;
-    let cursor_y = game_state.cursor.y;
-
     let other_actor_under_cursor = game_state.positions
         .iter()
         .position(|position| position == &game_state.cursor);
@@ -189,13 +186,11 @@ fn move_actor(game_state: &mut GameState) {
     }
 
     let actor_position = &mut game_state.positions[active_index];
-    let cursor_distance_from_actor = (actor_position.x - cursor_x).abs()
-        + (actor_position.y - cursor_y).abs();
-
     let actor = &game_state.actors[active_index];
-    if cursor_distance_from_actor <= actor.move_range {
-        actor_position.x = cursor_x;
-        actor_position.y = cursor_y;
+
+    if game_state.cursor.distance_to(actor_position) <= actor.move_range {
+        actor_position.x = game_state.cursor.x;
+        actor_position.y = game_state.cursor.y;
 
         match game_state.menu.as_mut() {
             Some(menu) => menu.remove(&MenuOption::Move),
@@ -235,11 +230,7 @@ fn attack(game_state: &mut GameState) {
     let actor = &game_state.actors[active_index];
     let actor_position = &game_state.positions[active_index];
 
-    let cursor_x = game_state.cursor.x;
-    let cursor_y = game_state.cursor.y;
-    let cursor_distance_from_actor = (actor_position.x - cursor_x).abs() + (actor_position.y - cursor_y).abs();
-
-    if cursor_distance_from_actor > actor.attack_range {
+    if game_state.cursor.distance_to(actor_position) > actor.attack_range {
         return
     }
 

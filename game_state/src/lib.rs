@@ -14,6 +14,12 @@ pub struct Position {
     pub y: i32,
 }
 
+impl Position {
+    pub fn distance_to(&self, other: &Position) -> i32 {
+        (self.x - other.x).abs() + (self.y - other.y).abs()
+    }
+}
+
 #[derive(Clone)]
 pub struct Tile {
     pub terrain: String,
