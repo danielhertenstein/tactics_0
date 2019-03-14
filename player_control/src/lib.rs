@@ -60,6 +60,7 @@ fn select_tile(game_state: &mut GameState) {
                     game_state.menu = Some(create_battle_menu(actor, game_state.turn.as_ref().unwrap()));
                 }
             }
+            // TODO: No menu pops up, so the cursor is just frozen for now until the user Escapes
             game_state.player_state = PlayerState::UnitSelected;
         },
         None => {}
