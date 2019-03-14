@@ -2,7 +2,7 @@ extern crate tcod;
 
 use tcod::input::{Key, KeyCode};
 
-use game_state::{GameState, PlayerState, MenuOption, Menu, Actor, Turn, Position};
+use game_state::{GameState, PlayerState, MenuOption, Menu, Actor, Turn};
 
 pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
     match game_state.player_state {
@@ -34,17 +34,15 @@ fn handle_moving_cursor(input_state: Key, game_state: &mut GameState) {
 }
 
 fn move_cursor(dx: i32, dy: i32, game_state: &mut GameState) {
+    let new_pos = &game_state.cursor + (dx, dy);
+
     let map_width = game_state.map.len() as i32;
     let map_height = game_state.map[0].len() as i32;
-
-    let new_x = game_state.cursor.x + dx;
-    let new_y = game_state.cursor.y + dy;
-
-    if new_x < 0 || new_y < 0 || new_x == map_width || new_y == map_height {
+    if new_pos.x < 0 || new_pos.y < 0 || new_pos.x >= map_width || new_pos.y >= map_height {
         return
     }
 
-    game_state.cursor.move_to(&Position{ x: new_x, y: new_y });
+    game_state.cursor.move_to(&new_pos);
 }
 
 fn select_tile(game_state: &mut GameState) {

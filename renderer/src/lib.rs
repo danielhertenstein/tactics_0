@@ -84,29 +84,28 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
 
             for x in -actor.move_range..=actor.move_range {
                 for y in -actor.move_range..=actor.move_range {
-                    let new_x = actor_position.x + x;
-                    let new_y = actor_position.y + y;
+                    let new_pos = actor_position + (x, y);
 
                     let other_actor_under_cursor = game_state.positions
                         .iter()
-                        .position(|position| position.x == new_x && position.y == new_y);
+                        .position(|position| position == &new_pos);
 
                     match other_actor_under_cursor {
                         Some(index) if index != active_index => continue,
                         _ => {}
                     }
 
-                    if x.abs() + y.abs() > actor.move_range {
+                    if new_pos.magnitude() > actor.move_range {
                         continue
                     }
 
-                    if new_x > map_width || new_x < 0 || new_y > map_width || new_y < 0 {
+                    if new_pos.x > map_width || new_pos.x < 0 || new_pos.y > map_height || new_pos.y < 0 {
                         continue
                     }
 
                     renderer.map.set_char_background(
-                        new_x,
-                        new_y,
+                        new_pos.x,
+                        new_pos.y,
                         color,
                         BackgroundFlag::Set
                     );
@@ -120,20 +119,20 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
 
             for x in -actor.attack_range..=actor.attack_range {
                 for y in -actor.attack_range..=actor.attack_range {
-                    if x.abs() + y.abs() > actor.attack_range || (x == 0 && y == 0)  {
+                    let new_pos = actor_position + (x, y);
+                    let new_pos_magnitude = new_pos.magnitude();
+
+                    if new_pos_magnitude > actor.attack_range || new_pos_magnitude == 0  {
                         continue
                     }
 
-                    let new_x = actor_position.x + x;
-                    let new_y = actor_position.y + y;
-
-                    if new_x > map_width || new_x < 0 || new_y > map_width || new_y < 0 {
+                    if new_pos.x > map_width || new_pos.x < 0 || new_pos.y > map_height || new_pos.y < 0 {
                         continue
                     }
 
                     renderer.map.set_char_background(
-                        new_x,
-                        new_y,
+                        new_pos.x,
+                        new_pos.y,
                         colors::BRASS,
                         BackgroundFlag::Set
                     );

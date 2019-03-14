@@ -1,3 +1,5 @@
+use std::ops::Add;
+
 pub struct Actor {
     pub name: String,
     pub move_range: i32,
@@ -22,6 +24,21 @@ impl Position {
     pub fn move_to(&mut self, other: &Position) {
         self.x = other.x;
         self.y = other.y;
+    }
+
+    pub fn magnitude(&self) -> i32 {
+        self.x.abs() + self.y.abs()
+    }
+}
+
+impl Add<(i32, i32)> for &Position {
+    type Output = Position;
+
+    fn add(self, other: (i32, i32)) -> Position {
+        Position {
+            x: self.x + other.0,
+            y: self.y + other.1,
+        }
     }
 }
 
