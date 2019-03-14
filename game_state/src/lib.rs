@@ -2,9 +2,6 @@ use std::ops::Add;
 
 pub struct Actor {
     pub name: String,
-    pub move_range: i32,
-    pub attack_range: i32,
-    pub speed: i32,
     pub player_controlled: bool,
     pub can_move: bool,
     pub can_act: bool,
@@ -40,6 +37,15 @@ impl Add<(i32, i32)> for &Position {
             y: self.y + other.1,
         }
     }
+}
+
+pub struct CombatStatistics {
+    pub health: i32,
+    pub strength: i32,
+    pub constitution: i32,
+    pub move_range: i32,
+    pub attack_range: i32,
+    pub speed: i32,
 }
 
 #[derive(Clone)]
@@ -150,6 +156,7 @@ impl Turn {
 pub struct GameState {
     pub actors: Vec<Actor>,
     pub positions: Vec<Position>,
+    pub combat_stats: Vec<CombatStatistics>,
     pub map: Map,
     pub player_state: PlayerState,
     pub cursor: Position,
@@ -165,27 +172,18 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
         actors: vec![
             Actor {
                 name: String::from("Percy"),
-                move_range: 4,
-                attack_range: 1,
-                speed: 7,
                 player_controlled: true,
                 can_move: true,
                 can_act: true,
             },
             Actor {
                 name: String::from("Bad Guy"),
-                move_range: 3,
-                attack_range: 1,
-                speed: 6,
                 player_controlled: false,
                 can_move: true,
                 can_act: true,
             },
             Actor {
                 name: String::from("Pansy"),
-                move_range: 4,
-                attack_range: 1,
-                speed: 1,
                 player_controlled: true,
                 can_move: true,
                 can_act: true,
@@ -195,6 +193,32 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
             Position { x: 5, y: 5 },
             Position { x: 5, y: 6 },
             Position { x: 8, y: 5 },
+        ],
+        combat_stats: vec![
+            CombatStatistics {
+                health: 50,
+                strength: 3,
+                constitution: 4,
+                move_range: 4,
+                attack_range: 1,
+                speed: 7,
+            },
+            CombatStatistics {
+                health: 50,
+                strength: 3,
+                constitution: 4,
+                move_range: 3,
+                attack_range: 1,
+                speed: 6,
+            },
+            CombatStatistics {
+                health: 50,
+                strength: 3,
+                constitution: 4,
+                move_range: 4,
+                attack_range: 1,
+                speed: 1,
+            },
         ],
         map: vec![vec![Tile::new(); map_height as usize]; map_width as usize],
         player_state: PlayerState::MovingCursor,

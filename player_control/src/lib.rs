@@ -176,9 +176,9 @@ fn move_actor(game_state: &mut GameState) {
     }
 
     let actor_position = &mut game_state.positions[active_index];
-    let actor = &game_state.actors[active_index];
+    let move_range = game_state.combat_stats[active_index].move_range;
 
-    if game_state.cursor.distance_to(actor_position) <= actor.move_range {
+    if game_state.cursor.distance_to(actor_position) <= move_range {
         actor_position.move_to(&game_state.cursor);
 
         match game_state.menu.as_mut() {
@@ -215,11 +215,11 @@ fn handle_actor_attacking(input_state: Key, game_state: &mut GameState) {
 
 fn attack(game_state: &mut GameState) {
     let active_index = game_state.active_actor_index.unwrap();
-    let actor = &game_state.actors[active_index];
     let actor_position = &game_state.positions[active_index];
+    let attack_range = game_state.combat_stats[active_index].attack_range;
 
     let attack_distance = game_state.cursor.distance_to(actor_position);
-    if attack_distance > actor.attack_range || attack_distance == 0 {
+    if attack_distance > attack_range || attack_distance == 0 {
         return
     }
 

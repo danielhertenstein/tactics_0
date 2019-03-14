@@ -76,15 +76,16 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
             let active_index = game_state.active_actor_index.unwrap();
             let actor = &game_state.actors[active_index];
             let actor_position = &game_state.positions[active_index];
+            let move_range = game_state.combat_stats[active_index].move_range;
 
             let color = match actor.player_controlled {
                 true => colors::LIGHT_BLUE,
                 false => colors::LIGHT_RED,
             };
 
-            for x in -actor.move_range..=actor.move_range {
-                for y in -actor.move_range..=actor.move_range {
-                    if x.abs() + y.abs() > actor.move_range {
+            for x in -move_range..=move_range {
+                for y in -move_range..=move_range {
+                    if x.abs() + y.abs() > move_range {
                         continue
                     }
 
@@ -114,12 +115,12 @@ fn render_map(renderer: &mut Renderer, game_state: &GameState) {
         },
         PlayerState::ActorAttacking => {
             let active_index = game_state.active_actor_index.unwrap();
-            let actor = &game_state.actors[active_index];
             let actor_position = &game_state.positions[active_index];
+            let attack_range = game_state.combat_stats[active_index].attack_range;
 
-            for x in -actor.attack_range..=actor.attack_range {
-                for y in -actor.attack_range..=actor.attack_range {
-                    if x.abs() + y.abs() > actor.attack_range || (x == 0 && y == 0)  {
+            for x in -attack_range..=attack_range {
+                for y in -attack_range..=attack_range {
+                    if x.abs() + y.abs() > attack_range || (x == 0 && y == 0)  {
                         continue
                     }
 

@@ -6,7 +6,7 @@ pub fn clock_tick_system(game_state: &mut GameState) {
     // there, tie break by lowest index.
     let turn_ready_for = game_state.charge_times
         .iter()
-        .zip(game_state.actors.iter().map(|a| &a.speed))
+        .zip(game_state.combat_stats.iter().map(|cs| &cs.speed))
         .enumerate()
         .filter(|&(_i, (&c, _s))| c >= 100)
         .max_by(|&(_i1, (&c1, &s1)), &(_i2, (&c2, &s2))| {
@@ -29,7 +29,7 @@ pub fn clock_tick_system(game_state: &mut GameState) {
         },
         None => {
             for i in 0..game_state.charge_times.len() {
-                game_state.charge_times[i] += game_state.actors[i].speed;
+                game_state.charge_times[i] += game_state.combat_stats[i].speed;
             }
 
         },
