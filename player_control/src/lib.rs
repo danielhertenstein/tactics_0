@@ -2,7 +2,7 @@ extern crate tcod;
 
 use tcod::input::{Key, KeyCode};
 
-use game_state::{GameState, PlayerState, MenuOption, Menu, Actor, Turn};
+use game_state::{GameState, PlayerState, MenuOption, Menu, Actor, Turn, Position};
 
 pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
     match game_state.player_state {
@@ -44,8 +44,7 @@ fn move_cursor(dx: i32, dy: i32, game_state: &mut GameState) {
         return
     }
 
-    game_state.cursor.x = new_x;
-    game_state.cursor.y = new_y;
+    game_state.cursor.move_to(&Position{ x: new_x, y: new_y });
 }
 
 fn select_tile(game_state: &mut GameState) {
@@ -88,9 +87,7 @@ fn return_to_active_unit(game_state: &mut GameState) {
         Some(index) => {
             let actor = &game_state.actors[index];
             if actor.player_controlled {
-                let actor_position = &game_state.positions[index];
-                game_state.cursor.x = actor_position.x;
-                game_state.cursor.y = actor_position.y;
+                game_state.cursor.move_to(&game_state.positions[index]);
                 select_tile(game_state);
             }
         },
@@ -189,8 +186,7 @@ fn move_actor(game_state: &mut GameState) {
     let actor = &game_state.actors[active_index];
 
     if game_state.cursor.distance_to(actor_position) <= actor.move_range {
-        actor_position.x = game_state.cursor.x;
-        actor_position.y = game_state.cursor.y;
+        actor_position.move_to(&game_state.cursor);
 
         match game_state.menu.as_mut() {
             Some(menu) => menu.remove(&MenuOption::Move),
@@ -207,8 +203,7 @@ fn move_actor(game_state: &mut GameState) {
 
 fn cancel_actor_action(game_state: &mut GameState) {
     let actor_position = &game_state.positions[game_state.active_actor_index.unwrap()];
-    game_state.cursor.x = actor_position.x;
-    game_state.cursor.y = actor_position.y;
+    game_state.cursor.move_to(actor_position);
 
     game_state.player_state = PlayerState::UnitSelected;
 }
@@ -234,8 +229,7 @@ fn attack(game_state: &mut GameState) {
         return
     }
 
-    game_state.cursor.x = actor_position.x;
-    game_state.cursor.y = actor_position.y;
+    game_state.cursor.move_to(actor_position);
 
     match game_state.menu.as_mut() {
         Some(menu) => menu.remove(&MenuOption::Attack),

@@ -1,6 +1,9 @@
 use game_state::{GameState, PlayerState};
 
 pub fn clock_tick_system(game_state: &mut GameState) {
+    // Look for charge times greater than or equal to 100. If there are multiple, tie-break by who
+    // has the highest charge time. If there is a tie there, tie break by speed. If there is a tie
+    // there, tie break by lowest index.
     let turn_ready_for = game_state.charge_times
         .iter()
         .zip(game_state.actors.iter().map(|a| &a.speed))
@@ -18,12 +21,9 @@ pub fn clock_tick_system(game_state: &mut GameState) {
     match turn_ready_for {
         Some(index) => {
             game_state.active_actor_index = Some(index);
-            let actor = &game_state.actors[index];
-            let actor_position = &game_state.positions[index];
             game_state.charge_times[index] = 100;
-            if actor.player_controlled {
-                game_state.cursor.x = actor_position.x;
-                game_state.cursor.y = actor_position.y;
+            if game_state.actors[index].player_controlled {
+                game_state.cursor.move_to(&game_state.positions[index]);
                 game_state.player_state = PlayerState::TurnReady;
             }
         },

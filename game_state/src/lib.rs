@@ -18,6 +18,11 @@ impl Position {
     pub fn distance_to(&self, other: &Position) -> i32 {
         (self.x - other.x).abs() + (self.y - other.y).abs()
     }
+
+    pub fn move_to(&mut self, other: &Position) {
+        self.x = other.x;
+        self.y = other.y;
+    }
 }
 
 #[derive(Clone)]
