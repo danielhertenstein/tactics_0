@@ -8,4 +8,5 @@ members = [
     "player_control",
     "ai",
     "clock_tick",
+    "combat",
 ]

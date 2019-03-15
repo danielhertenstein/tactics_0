@@ -2,6 +2,7 @@
 name = "ai"
 version = "0.1.0"
 dependencies = [
+ "combat 0.1.0",
  "game_state 0.1.0",
  "rand 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -42,6 +43,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "combat"
+version = "0.1.0"
+dependencies = [
+ "game_state 0.1.0",
+]
+
+[[package]]
 name = "fuchsia-cprng"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -76,6 +84,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "player_control"
 version = "0.1.0"
 dependencies = [
+ "combat 0.1.0",
  "game_state 0.1.0",
  "tcod 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
