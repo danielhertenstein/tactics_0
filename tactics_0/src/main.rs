@@ -26,6 +26,10 @@ fn main() {
     let mut game_state = initial_game_state(MAP_HEIGHT, MAP_WIDTH);
 
     loop {
+        if check_win_condition(&game_state) {
+            break;
+        }
+
         match game_state.active_actor_index {
             Some(index) if game_state.actors[index].player_controlled => {
                 let input_state = capture_input_state();
@@ -37,5 +41,17 @@ fn main() {
 
         render_system(&mut renderer, &game_state);
     }
+
+    println!("You win!");
 }
 
+fn check_win_condition(game_state: &GameState) -> bool {
+    if game_state.actors
+        .iter()
+        .filter(|actor| !actor.player_controlled)
+        .count() == 0 {
+        true
+    } else {
+        false
+    }
+}
