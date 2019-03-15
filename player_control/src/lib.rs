@@ -2,7 +2,7 @@ extern crate tcod;
 
 use tcod::input::{Key, KeyCode};
 
-use game_state::{GameState, PlayerState, MenuOption, Menu, Actor, Turn, map_contains_position};
+use game_state::*;
 
 pub fn player_control_system(input_state: Key, game_state: &mut GameState) {
     match game_state.player_state {
@@ -207,13 +207,13 @@ fn handle_actor_attacking(input_state: Key, game_state: &mut GameState) {
         Key { code: KeyCode::Down, .. } => move_cursor(0, 1, game_state),
         Key { code: KeyCode::Left, .. } => move_cursor(-1, 0, game_state),
         Key { code: KeyCode::Right, .. } => move_cursor(1, 0, game_state),
-        Key { code: KeyCode::Enter, .. } => attack(game_state),
+        Key { code: KeyCode::Enter, .. } => attack_tile(game_state),
         Key { code: KeyCode::Escape, .. } => cancel_actor_action(game_state),
         _ => {},
     }
 }
 
-fn attack(game_state: &mut GameState) {
+fn attack_tile(game_state: &mut GameState) {
     let active_index = game_state.active_actor_index.unwrap();
     let actor_position = &game_state.positions[active_index];
     let attack_range = game_state.combat_stats[active_index].attack_range;
@@ -229,7 +229,12 @@ fn attack(game_state: &mut GameState) {
         .position(|position| position == &game_state.cursor) {
         Some(index) => {
             let name = &game_state.actors[index].name;
-            println!("You attacked {}", name);
+            println!("You attacked {}.", name);
+            attack(
+                &mut game_state.combat_stats,
+                active_index,
+                index,
+            )
         },
         None => {
             println!("You swing wildly at the air.");
@@ -248,4 +253,11 @@ fn attack(game_state: &mut GameState) {
     }
 
     game_state.player_state = PlayerState::UnitSelected;
+}
+
+// TODO: Units can go to negative health
+fn attack(combat_statistics: &mut Vec<CombatStatistics>, attacker: usize, defender: usize) {
+    let damage = combat_statistics[attacker].strength - combat_statistics[defender].constitution;
+    combat_statistics[defender].health -= damage;
+    println!("You dealt {} damage.", damage);
 }

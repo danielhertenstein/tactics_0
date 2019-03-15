@@ -41,6 +41,7 @@ impl Add<(i32, i32)> for &Position {
 
 pub struct CombatStatistics {
     pub health: i32,
+    pub max_health: i32,
     pub strength: i32,
     pub constitution: i32,
     pub move_range: i32,
@@ -197,22 +198,25 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
         combat_stats: vec![
             CombatStatistics {
                 health: 50,
+                max_health: 50,
                 strength: 3,
-                constitution: 4,
+                constitution: 2,
                 move_range: 4,
                 attack_range: 1,
                 speed: 7,
             },
             CombatStatistics {
                 health: 50,
+                max_health: 50,
                 strength: 3,
-                constitution: 4,
+                constitution: 1,
                 move_range: 3,
                 attack_range: 1,
                 speed: 6,
             },
             CombatStatistics {
                 health: 50,
+                max_health: 50,
                 strength: 3,
                 constitution: 4,
                 move_range: 4,

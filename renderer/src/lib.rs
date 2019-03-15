@@ -288,6 +288,17 @@ fn show_actor_info(renderer: &mut Renderer, game_state: &GameState, index: usize
         2,
         BackgroundFlag::None,
         TextAlignment::Left,
+        format!(
+            "HP: {}/{}",
+            game_state.combat_stats[index].health,
+            game_state.combat_stats[index].max_health,
+        ),
+    );
+    renderer.panel.print_ex(
+        1,
+        3,
+        BackgroundFlag::None,
+        TextAlignment::Left,
         format!("CT: {}/100", game_state.charge_times[index]),
     );
 }
