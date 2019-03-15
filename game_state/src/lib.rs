@@ -154,6 +154,11 @@ impl Turn {
     }
 }
 
+pub enum WinCondition {
+    Win,
+    Lose,
+}
+
 pub struct GameState {
     pub actors: Vec<Actor>,
     pub positions: Vec<Position>,
@@ -174,6 +179,24 @@ impl GameState {
         self.positions.remove(index);
         self.combat_stats.remove(index);
         self.charge_times.remove(index);
+    }
+
+    pub fn check_win_condition(&self) -> Option<WinCondition> {
+        let number_of_enemies = self.actors
+            .iter()
+            .filter(|actor| !actor.player_controlled)
+            .count();
+        let number_of_allies = self.actors
+            .iter()
+            .filter(|actor| actor.player_controlled)
+            .count();
+        if number_of_allies == 0 {
+            return Some(WinCondition::Lose)
+        }
+        if number_of_enemies == 0 {
+            return Some(WinCondition::Win)
+        }
+        None
     }
 }
 
