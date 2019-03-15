@@ -206,7 +206,7 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 speed: 7,
             },
             CombatStatistics {
-                health: 50,
+                health: 3,
                 max_health: 50,
                 strength: 3,
                 constitution: 1,

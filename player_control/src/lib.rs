@@ -241,6 +241,9 @@ fn attack_tile(game_state: &mut GameState) {
         }
     }
 
+    let dead_indices = check_if_anyone_died(&game_state.combat_stats);
+    println!("{:?}", dead_indices);
+
     game_state.cursor.move_to(actor_position);
 
     match game_state.menu.as_mut() {
@@ -255,9 +258,22 @@ fn attack_tile(game_state: &mut GameState) {
     game_state.player_state = PlayerState::UnitSelected;
 }
 
-// TODO: Units can go to negative health
 fn attack(combat_statistics: &mut Vec<CombatStatistics>, attacker: usize, defender: usize) {
     let damage = combat_statistics[attacker].strength - combat_statistics[defender].constitution;
-    combat_statistics[defender].health -= damage;
+    if combat_statistics[defender].health - damage < 0 {
+        combat_statistics[defender].health = 0;
+    } else {
+        combat_statistics[defender].health -= damage;
+    }
     println!("You dealt {} damage.", damage);
+}
+
+fn check_if_anyone_died(combat_statistics: &Vec<CombatStatistics>) -> Vec<usize>{
+    combat_statistics
+        .iter()
+        .enumerate()
+        .filter(|(_index, stats)| stats.health == 0)
+        .map(|(index, _stats)| index)
+        .collect()
+
 }
