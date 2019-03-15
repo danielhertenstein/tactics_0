@@ -253,7 +253,6 @@ fn attack_tile(game_state: &mut GameState) {
         None => {},
     }
 
-    // TODO: Should this happen somewhere else?
     let dead_indices = check_if_anyone_died(&game_state.combat_stats);
     for dead_index in dead_indices {
         game_state.remove_entity(dead_index);

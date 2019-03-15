@@ -5,5 +5,5 @@ authors = ["Daniel Hertenstein <daniel.hertenstein@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rand = "0.6.5"
 game_state = { path = "../game_state" }
+combat = { path = "../combat" }
