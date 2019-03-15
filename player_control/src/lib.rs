@@ -223,6 +223,19 @@ fn attack(game_state: &mut GameState) {
         return
     }
 
+    // Because we check attack distance for 0 above, we know the unit is not attacking itself
+    match game_state.positions
+        .iter()
+        .position(|position| position == &game_state.cursor) {
+        Some(index) => {
+            let name = &game_state.actors[index].name;
+            println!("You attacked {}", name);
+        },
+        None => {
+            println!("You swing wildly at the air.");
+        }
+    }
+
     game_state.cursor.move_to(actor_position);
 
     match game_state.menu.as_mut() {
@@ -234,6 +247,5 @@ fn attack(game_state: &mut GameState) {
         None => {},
     }
 
-    println!("You swing wildly at the air.");
     game_state.player_state = PlayerState::UnitSelected;
 }
