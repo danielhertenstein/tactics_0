@@ -168,6 +168,15 @@ pub struct GameState {
     pub turn: Option<Turn>,
 }
 
+impl GameState {
+    pub fn remove_entity(&mut self, index: usize) {
+        self.actors.remove(index);
+        self.positions.remove(index);
+        self.combat_stats.remove(index);
+        self.charge_times.remove(index);
+    }
+}
+
 pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
     GameState {
         actors: vec![

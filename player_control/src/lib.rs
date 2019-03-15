@@ -241,9 +241,6 @@ fn attack_tile(game_state: &mut GameState) {
         }
     }
 
-    let dead_indices = check_if_anyone_died(&game_state.combat_stats);
-    println!("{:?}", dead_indices);
-
     game_state.cursor.move_to(actor_position);
 
     match game_state.menu.as_mut() {
@@ -253,6 +250,12 @@ fn attack_tile(game_state: &mut GameState) {
     match game_state.turn.as_mut() {
         Some(turn) => turn.acted = true,
         None => {},
+    }
+
+    // TODO: Should this happen somewhere else?
+    let dead_indices = check_if_anyone_died(&game_state.combat_stats);
+    for dead_index in dead_indices {
+        game_state.remove_entity(dead_index);
     }
 
     game_state.player_state = PlayerState::UnitSelected;
