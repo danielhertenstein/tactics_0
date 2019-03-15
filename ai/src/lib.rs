@@ -3,6 +3,9 @@ use game_state::{GameState, map_contains_position, Turn};
 
 pub fn ai_control_system(game_state: &mut GameState) {
     if let Some(index) = game_state.active_actor_index {
+        let name = &game_state.actors[index].name.clone();
+        println!("{} starts its turn!", name);
+
         game_state.turn = Some(Turn::new());
 
         let ai_pos = game_state.positions[index].clone();
@@ -64,30 +67,32 @@ pub fn ai_control_system(game_state: &mut GameState) {
                 Some(turn) => turn.acted = true,
                 None => {},
             }
+        }
 
-            let dead_indices = check_if_anyone_died(&game_state.combat_stats);
-            for dead_index in dead_indices {
-                game_state.remove_entity(dead_index);
+        let dead_indices = check_if_anyone_died(&game_state.combat_stats);
+
+        if !dead_indices.contains(&index) {
+            let mut new_charge_time = 80;
+            match &game_state.turn {
+                Some(turn) => {
+                    if turn.moved {
+                        new_charge_time -= 30;
+                    }
+                    if turn.acted {
+                        new_charge_time -= 50;
+                    }
+                },
+                None => {}
             }
+            game_state.charge_times[index] = new_charge_time;
         }
 
-
-        let mut new_charge_time = 80;
-        match &game_state.turn {
-            Some(turn) => {
-                if turn.moved {
-                    new_charge_time -= 30;
-                }
-                if turn.acted {
-                    new_charge_time -= 50;
-                }
-            },
-            None => {}
+        for dead_index in dead_indices.iter() {
+            game_state.remove_entity(*dead_index);
         }
-        game_state.charge_times[index] = new_charge_time;
+
         game_state.active_actor_index = None;
         game_state.turn = None;
-        let name = &game_state.actors[index].name;
         println!("{} took its turn!", name);
     }
 }

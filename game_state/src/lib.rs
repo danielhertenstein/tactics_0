@@ -175,6 +175,15 @@ pub struct GameState {
 
 impl GameState {
     pub fn remove_entity(&mut self, index: usize) {
+        match self.active_actor_index {
+            Some(active_index) if active_index < index => {
+                self.active_actor_index = Some(active_index - 1);
+            },
+            Some(active_index) if active_index == index => {
+                self.active_actor_index = None;
+            },
+            _ => {},
+        }
         self.actors.remove(index);
         self.positions.remove(index);
         self.combat_stats.remove(index);
@@ -238,7 +247,7 @@ pub fn initial_game_state(map_height: i32, map_width: i32) -> GameState {
                 speed: 7,
             },
             CombatStatistics {
-                health: 3,
+                health: 50,
                 max_health: 50,
                 strength: 3,
                 constitution: 1,
